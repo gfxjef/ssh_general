@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuestas - Calificaciones</title>
+    <!-- Estilos CSS -->    
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+
+    <style>
+        .table-wrapper {
+            width: 100%;
+            overflow-x: hidden;
+        }
+         
+        #tablaCalificaciones {
+            width: 100%;
+            font-size: 0.70rem;
+            table-layout: fixed;
+        }
+        
+        #tablaCalificaciones th,
+        #tablaCalificaciones td {
+            padding: 6px 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Distribución del ancho de columnas */
+        #tablaCalificaciones th:nth-child(1),
+        #tablaCalificaciones td:nth-child(1) { width: 5%; }  /* ID */
+
+        #tablaCalificaciones th:nth-child(2),
+        #tablaCalificaciones td:nth-child(2) { width: 16%; }  /* Asesor */
+
+        #tablaCalificaciones th:nth-child(3),
+        #tablaCalificaciones td:nth-child(3) { width: 27%; }  /* Nombres */
+
+        #tablaCalificaciones th:nth-child(4),
+        #tablaCalificaciones td:nth-child(4) { width: 11%; }  /* Calificación */
+
+        #tablaCalificaciones th:nth-child(5),
+        #tablaCalificaciones td:nth-child(5) { width: 20%; }  /* Tipo */
+
+        #tablaCalificaciones th:nth-child(6),
+        #tablaCalificaciones td:nth-child(6) { width: 7%; }  /* Acciones */
+
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure high z-index */
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #343a40;
+        }
+
+        .close-button {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-button:hover {
+            color: #343a40;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            background-color: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .modal-footer button {
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-footer button:hover {
+            background-color: #5a6268;
+        }
+
+        /* Simplificar el estilo del botón */
+        .btn-detalles {
+            padding: 2px 8px;
+            font-size: 0.9rem;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        
+        .btn-detalles:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Estilos para la información en el modal */
+        .info-grupo {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .info-etiqueta {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .info-valor {
+            margin-left: 10px;
+        }
+
+        /* Estilo para el contenedor de dos columnas */
+        .two-column-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .column-left {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .column-right {
+            width: 400px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        /* Media query para pantallas pequeñas */
+        @media (max-width: 992px) {
+            .two-column-layout {
+                flex-direction: column; /* Cambia a columna en pantallas pequeñas */
+            }
+            
+            .column-right {
+                width: 100%; /* La columna derecha ocupa todo el ancho en pantallas pequeñas */
+                margin-top: 20px;
+            }
+        }
+        
+        /* Estilos para las tarjetas de estadísticas */
+        .stat-card {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card h3 {
+            margin-top: 0;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+        
+        .stat-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .stat-table th, .stat-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-table th {
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        
+        .best-performer {
+            background-color: #e8f5e9;
+        }
+
+        /* Card styling improvements */
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        /* Information group styling */
+        .info-grupo {
+            display: flex;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+
+        .info-grupo:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-etiqueta {
+            min-width: 100px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .info-valor {
+            flex: 1;
+            color: #212529;
+        }
+
+        /* Promotion items styling */
+        .promo-item {
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .promo-item h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #495057;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+
+        .promo-descripcion {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .promo-timestamp {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .no-observaciones, 
+        .no-promociones, 
+        .no-descripcion {
+            font-style: italic;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="sistema-inventario">
+                <h1>Registro de Calificaciones</h1>
+                
+                <div id="mainContent">
+                    <div class="two-column-layout">
+                        <!-- Columna izquierda - Tabla existente -->
+                        <div class="column-left">
+                            <div class="table-wrapper">
+                                <table id="tablaCalificaciones">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Asesor</th>
+                                            <th>Nombres</th>
+                                            <th>Calificación</th>
+                                            <th>Tipo</th>
+                                            <th>+</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Se llenará dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Contenedor para el modal de detalles -->
+                            <div id="modalDetalles" class="modal" style="display: none;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3>Detalles de Calificación #<span id="modalIdCalificacion"></span></h3>
+                                        <span class="close-button" id="closeModalDetalles">&times;</span>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Información básica del registro -->
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <strong>Información</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="info-grupo">
+                                                    <div class="info-etiqueta">RUC:</div>
+                                                    <div class="info-valor" id="detallesRuc"></div>
+                                                </div>
+                                                <div class="info-grupo">
+                                                    <div class="info-etiqueta">Documento:</div>
+                                                    <div class="info-valor" id="detallesDocumento"></div>
+                                                </div>
+                                                <div class="info-grupo">
+                                                    <div class="info-etiqueta">Fecha:</div>
+                                                    <div class="info-valor" id="detallesFecha"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <strong>Observaciones</strong>
+                                            </div>
+                                            <div class="card-body" id="detallesObservaciones">
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <strong>Promociones</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="detallesPromociones"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="btnCerrarModalDetalles">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="mensaje" class="mensaje"></div>
+                        </div>
+                        
+                        <!-- Columna derecha - Estadísticas -->
+                        <div class="column-right">
+                            <h2>Estadísticas</h2>
+                            
+                            <!-- Percepción cliente - Ventas (OT) -->
+                            <div class="stat-card">
+                                <h3>Percepción del cliente - Ventas (OT)</h3>
+                                <div class="chart-container">
+                                    <canvas id="chartVentas"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Percepción cliente - Conformidad -->
+                            <div class="stat-card">
+                                <h3>Percepción del cliente - Conformidad</h3>
+                                <div class="chart-container">
+                                    <canvas id="chartConformidad"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Calificaciones por Asesor -->
+                            <div class="stat-card">
+                                <h3>Calificaciones por Asesor - Ventas (OT)</h3>
+                                <div id="tablaAsesores"></div>
+                            </div>
+                            
+                            <!-- Asesores con mejor percepción -->
+                            <div class="stat-card">
+                                <h3>Ranking de Asesores por Satisfacción</h3>
+                                <div id="rankingAsesores"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Cargar Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Scripts principales -->   
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authCheck.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logoutHandler.js') }}"></script>
+    
+    <script>
+        const API_BASE_URL = '/api';
+
+        // Función para formatear fecha
+        function formatearFecha(fecha) {
+            if (!fecha) return '-';
+            return new Date(fecha).toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Función para mostrar el modal con detalles
+        function mostrarDetalles(registro) {
+            console.log("Modal trigger clicked for registro:", registro); // Debug log
+            
+            try {
+                // Check if registro exists
+                if (!registro) {
+                    console.error("Registro no encontrado");
+                    return;
+                }
+                
+                document.getElementById('modalIdCalificacion').textContent = registro.idcalificacion || 'N/A';
+                document.getElementById('detallesRuc').textContent = registro.ruc || 'No disponible';
+                document.getElementById('detallesDocumento').textContent = registro.documento || 'No disponible';
+                document.getElementById('detallesFecha').textContent = formatearFecha(registro.timestamp);
+                
+                // Mostrar observaciones
+                document.getElementById('detallesObservaciones').innerHTML = 
+                    registro.observaciones || '<div class="no-observaciones">Sin observaciones</div>';
+                
+                // Mostrar promociones
+                const promocionesHtml = [];
+                for (let i = 1; i <= 5; i++) {
+                    const promo = registro[`promo${i}`];
+                    const timePromo = registro[`time_promo${i}`];
+                    
+                    if (promo || timePromo) {
+                        promocionesHtml.push(`
+                            <div class="promo-item">
+                                <h3>Promoción ${i}</h3>
+                                <div class="promo-descripcion">${promo || '<span class="no-descripcion">Sin descripción</span>'}</div>
+                                ${timePromo ? `<div class="promo-timestamp">Fecha: ${formatearFecha(timePromo)}</div>` : ''}
+                            </div>
+                        `);
+                    }
+                }
+                
+                document.getElementById('detallesPromociones').innerHTML = 
+                    promocionesHtml.length > 0 ? 
+                        promocionesHtml.join('') : 
+                        '<div class="no-promociones">No hay promociones registradas</div>';
+
+                // Force the modal to be visible
+                const modalElement = document.getElementById('modalDetalles');
+                modalElement.style.display = 'flex';
+                console.log("Modal should now be visible");
+            } catch (error) {
+                console.error("Error al mostrar detalles:", error);
+            }
+        }
+        // Función para cerrar el modal de detalles
+        function cerrarModalDetalles() {
+            document.getElementById('modalDetalles').style.display = 'none';
+        }
+
+        document.getElementById('closeModalDetalles').addEventListener('click', cerrarModalDetalles);
+        document.getElementById('btnCerrarModalDetalles').addEventListener('click', cerrarModalDetalles);
+
+        // Función para calcular estadísticas y crear visualizaciones
+        function generarEstadisticas(data) {
+            const todosRegistros = data;
+            
+            // 1. Estadísticas para Ventas (OT)
+            const ventasRegistros = todosRegistros.filter(r => r.tipo === 'Ventas (OT)');
+            const ventasStats = {
+                bueno: ventasRegistros.filter(r => r.calificacion === 'Bueno').length,
+                regular: ventasRegistros.filter(r => r.calificacion === 'Regular').length,
+                malo: ventasRegistros.filter(r => r.calificacion === 'Malo').length,
+                novotado: ventasRegistros.filter(r => !r.calificacion || r.calificacion.trim() === '').length,
+                total: ventasRegistros.length
+            };
+            
+            // 2. Estadísticas para Conformidad
+            const conformidadRegistros = todosRegistros.filter(r => r.tipo === 'Coordinador (Conformidad)');
+            const conformidadStats = {
+                bueno: conformidadRegistros.filter(r => r.calificacion === 'Bueno').length,
+                regular: conformidadRegistros.filter(r => r.calificacion === 'Regular').length,
+                malo: conformidadRegistros.filter(r => r.calificacion === 'Malo').length,
+                novotado: conformidadRegistros.filter(r => !r.calificacion || r.calificacion.trim() === '').length,
+                total: conformidadRegistros.length
+            };
+            
+            // 3. Estadísticas por Asesor (solo para Ventas)
+            const asesoresStats = {};
+            // Asegurarse de que solo procesamos registros de Ventas (OT)
+            ventasRegistros.forEach(registro => {
+                // Verificar explícitamente que sea de tipo Ventas (OT)
+                if (registro.tipo !== 'Ventas (OT)') return;
+                
+                const asesor = registro.asesor || 'Sin asesor';
+                if (!asesoresStats[asesor]) {
+                    asesoresStats[asesor] = {
+                        total: 0,
+                        bueno: 0,
+                        regular: 0,
+                        malo: 0
+                    };
+                }
+                
+                asesoresStats[asesor].total++;
+                
+                if (registro.calificacion === 'Bueno') asesoresStats[asesor].bueno++;
+                else if (registro.calificacion === 'Regular') asesoresStats[asesor].regular++;
+                else if (registro.calificacion === 'Malo') asesoresStats[asesor].malo++;
+            });
+            
+            // Verificar que la suma de bueno+regular+malo coincida con total para cada asesor
+            Object.keys(asesoresStats).forEach(asesor => {
+                const stats = asesoresStats[asesor];
+                const suma = stats.bueno + stats.regular + stats.malo;
+                // Si hay discrepancia, corregir el total
+                if (suma !== stats.total) {
+                    console.warn(`Corrigiendo total para ${asesor}: ${stats.total} → ${suma}`);
+                    stats.total = suma;
+                }
+            });
+            
+            // 4. Ranking de asesores (solo para Ventas)
+            const asesoresRanking = Object.entries(asesoresStats)
+                .map(([nombre, stats]) => ({
+                    nombre,
+                    total: stats.total,
+                    bueno: stats.bueno,
+                    porcentaje: stats.total > 0 ? (stats.bueno / stats.total * 100).toFixed(1) : 0
+                }))
+                .sort((a, b) => b.porcentaje - a.porcentaje);
+            
+            // Crear visualizaciones
+            crearGraficosEstadisticas(ventasStats, conformidadStats, asesoresStats, asesoresRanking);
+        }
+
+        // Función para crear los gráficos y tablas
+        function crearGraficosEstadisticas(ventasStats, conformidadStats, asesoresStats, asesoresRanking) {
+            // 1. Gráfico para Ventas (OT)
+            const ctxVentas = document.getElementById('chartVentas').getContext('2d');
+            new Chart(ctxVentas, {
+                type: 'pie',
+                data: {
+                    labels: ['Bueno', 'Regular', 'Malo', 'No votado'],
+                    datasets: [{
+                        data: [ventasStats.bueno, ventasStats.regular, ventasStats.malo, ventasStats.novotado],
+                        backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#9E9E9E']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const percentage = Math.round(value / ventasStats.total * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 2. Gráfico para Conformidad
+            const ctxConformidad = document.getElementById('chartConformidad').getContext('2d');
+            new Chart(ctxConformidad, {
+                type: 'pie',
+                data: {
+                    labels: ['Bueno', 'Regular', 'Malo', 'No votado'],
+                    datasets: [{
+                        data: [conformidadStats.bueno, conformidadStats.regular, conformidadStats.malo, conformidadStats.novotado],
+                        backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#9E9E9E']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const percentage = Math.round(value / conformidadStats.total * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 3. Tabla de calificaciones por asesor
+            const tablaAsesores = document.getElementById('tablaAsesores');
+            let tablaHtml = `
+                <table class="stat-table">
+                    <thead>
+                        <tr>
+                            <th>Asesor</th>
+                            <th>Total</th>
+                            <th>Bueno</th>
+                            <th>Regular</th>
+                            <th>Malo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.entries(asesoresStats).forEach(([asesor, stats]) => {
+                tablaHtml += `
+                    <tr>
+                        <td>${asesor}</td>
+                        <td>${stats.total}</td>
+                        <td>${stats.bueno}</td>
+                        <td>${stats.regular}</td>
+                        <td>${stats.malo}</td>
+                    </tr>
+                `;
+            });
+            
+            tablaHtml += `
+                    </tbody>
+                </table>
+            `;
+            tablaAsesores.innerHTML = tablaHtml;
+            
+            // 4. Ranking de asesores
+            const rankingAsesores = document.getElementById('rankingAsesores');
+            let rankingHtml = `
+                <table class="stat-table">
+                    <thead>
+                        <tr>
+                            <th>Ranking</th>
+                            <th>Asesor</th>
+                            <th>Total</th>
+                            <th>Bueno</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            asesoresRanking.forEach((asesor, index) => {
+                const esMejor = index === 0 ? 'best-performer' : '';
+                rankingHtml += `
+                    <tr class="${esMejor}">
+                        <td>${index + 1}</td>
+                        <td>${asesor.nombre}</td>
+                        <td>${asesor.total}</td>
+                        <td>${asesor.bueno}</td>
+                        <td>${asesor.porcentaje}%</td>
+                    </tr>
+                `;
+            });
+            
+            rankingHtml += `
+                    </tbody>
+                </table>
+            `;
+            rankingAsesores.innerHTML = rankingHtml;
+        }
+
+        // Modificar la función cargarCalificaciones para incluir las estadísticas
+        async function cargarCalificaciones() {
+            try {
+                const response = await fetch(AppConfig.getFullPath(`${API_BASE_URL}/records`));
+                const data = await response.json();
+
+                if (data.status !== 'success' || !Array.isArray(data.records)) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                // Generar estadísticas con todos los registros
+                generarEstadisticas(data.records);
+
+                // Resto del código existente para la tabla...
+                // Filtrar registros que tengan calificación
+                const registrosFiltrados = data.records.filter(registro => 
+                    registro.calificacion && registro.calificacion.trim() !== ''
+                );
+                
+                // Ordenar registros por fecha (más recientes primero)
+                registrosFiltrados.sort((a, b) => {
+                    const fechaA = new Date(a.timestamp || 0);
+                    const fechaB = new Date(b.timestamp || 0);
+                    return fechaB - fechaA; // Orden descendente
+                });
+
+                const tbody = document.querySelector('#tablaCalificaciones tbody');
+                tbody.innerHTML = '';
+
+                registrosFiltrados.forEach(registro => {
+                    const registroId = registro.idcalificacion || '-';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${registroId}</td>
+                        <td>${registro.asesor || '-'}</td>
+                        <td>${registro.nombres || '-'}</td>
+                        <td>${registro.calificacion || '-'}</td>
+                        <td>${registro.tipo || '-'}</td>
+                        <td>
+                            <button class="btn-detalles" data-id="${registroId}">+</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                    
+                    // Add event listener to the button we just created
+                    const btn = tr.querySelector('.btn-detalles');
+                    btn.addEventListener('click', function() {
+                        console.log("Button clicked for ID:", registroId);
+                        const registroMatch = data.records.find(r => r.idcalificacion == registroId);
+                        if (registroMatch) {
+                            mostrarDetalles(registroMatch);
+                        } else {
+                            console.error("No se encontró el registro con ID:", registroId);
+                        }
+                    });
+                });
+                
+                // Remove the previous event listener attachment loop
+                // (we're now attaching them individually above)
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('mensaje').innerHTML =
+                    `<div class="error-message">Error cargando calificaciones: ${err.message}</div>`;
+            }
+        }
+        // Cargar datos al iniciar
+        window.addEventListener('load', cargarCalificaciones);
+    </script>
+</body>
+</html>

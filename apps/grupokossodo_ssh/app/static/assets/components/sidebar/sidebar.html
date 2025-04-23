@@ -1,0 +1,106 @@
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <ul class="menu-level-1">
+            <!-- MARKETING SECTION -->
+            <li class="has-submenu">
+                <a href="#" class="nav-item">
+                    <span class="nav-text">Marketing</span>
+                </a>
+                <ul class="submenu">
+                    <!-- Inventario Submenu -->
+                    <li class="has-submenu">
+                        <a href="#" class="nav-item">
+                            <span class="nav-text">Inventario</span>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a href="/static/pages/inventario/inventario.html" class="nav-item">
+                                    <span class="nav-text">Agregar/Consultar Inventario</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Merchandising Submenu -->
+                    <li class="has-submenu">
+                        <a href="#" class="nav-item">
+                            <span class="nav-text">Merchandising</span>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a href="/api/inventory/merchandising/solicitud" class="nav-item">
+                                    <span class="nav-text">Solicitud de Merchandising</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/static/pages/Merchandising/confirmacion.html" class="nav-item">
+                                    <span class="nav-text">Confirmación Solicitudes</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/static/pages/Merchandising/visualizar.html" class="nav-item">
+                                    <span class="nav-text">Historial Confirmaciones</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            
+            <!-- VENTAS SECTION -->
+            <li class="has-submenu">
+                <a href="#" class="nav-item">
+                    <span class="nav-text">Ventas</span>
+                </a>
+                <ul class="submenu">
+                    <!-- Encuestas Submenu -->
+                    <li class="has-submenu">
+                        <a href="#" class="nav-item">
+                            <span class="nav-text">Encuestas</span>
+                        </a>
+                        <ul class="submenu">
+
+                            <li>
+                                <a href="/api/encuestas" class="nav-item">
+                                    <span class="nav-text">Registro Calificaciones</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+              <!-- LOGÍSTICA SECTION -->
+            <li>
+                <a href="/static/pages/seguimiento/seguimiento.html" class="nav-item">
+                    <span class="nav-text">Seguimiento de Pedidos</span>
+                </a>
+            </li>
+            
+            <!-- BIENESTAR DE TALENTO SECTION -->
+            <li class="has-submenu">
+                <a href="#" class="nav-item">
+                    <span class="nav-text">Bienestar de Talento</span>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="/bienestar/view-posts" class="nav-item">
+                            <span class="nav-text">Posts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/bienestar/manage-posts" class="nav-item">
+                            <span class="nav-text">Administrar post's</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <!-- Logout button at the bottom of sidebar -->
+    <div class="sidebar-footer">
+        <button id="logoutBtn" class="logout-btn" title="Cerrar Sesión">
+            <i class="logout-icon">⎋</i>
+            <span>Cerrar Sesión</span>
+        </button>
+    </div>
+</div>

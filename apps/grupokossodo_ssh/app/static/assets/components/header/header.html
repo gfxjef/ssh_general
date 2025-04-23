@@ -1,0 +1,49 @@
+<header class="header">
+    <!-- Primera fila: Logo y búsqueda -->
+    <div class="header-row top-row">
+        <!-- Logo o texto del grupo -->
+        <div class="header-logo">
+            <a href="javascript:void(0)" onclick="window.location.href='/grupokossodo_ssh/api/welcome'" title="Ir a la página principal">
+                <!-- Use a direct, absolute path instead of relying on JavaScript -->
+                <img src="/grupokossodo_ssh/static/assets/images/grupokossodo_logo.webp" 
+                     alt="Grupo Kossodo" 
+                     class="logo-image" 
+                     id="header-logo-img"
+                     style="max-height: 40px; width: auto;" 
+                     onerror="this.onerror=null; console.error('Logo failed to load'); this.src='/grupokossodo_ssh/static/assets/images/grupokossodo_logo.png';">
+            </a>
+        </div>
+        
+        <!-- Nuevo contenedor de búsqueda -->
+        <div class="search-container masthead">
+            <form action="" class="masthead-search">
+                <label for="masthead-search-toggle" class="masthead-search-toggle">Toggle Search</label>
+                <input type="checkbox" id="masthead-search-toggle" class="isHidden"/>
+                <div class="masthead-search-indicator">
+                    <!-- Icono SVG de búsqueda -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" class="search-icon-svg" style="overflow: visible;">
+                        <circle cx="12" cy="12" r="14" fill="#3498db" />
+                        <g transform="translate(1 1)" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </g>
+                    </svg>
+                </div>
+                <div class="masthead-search-search">
+                    <label for="searchInput" class="isHidden">Search</label>
+                    <input type="search" id="searchInput" placeholder="Buscar en menús y secciones..."/>
+                </div>
+            </form>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+    </div>
+    
+    <!-- Segunda fila: Información del usuario -->
+    <div class="header-row user-row">
+        <div class="user-info">
+            <span id="userName" class="user-name">Jefferson</span>
+            <span class="user-separator"> - </span>
+            <span id="userRole" class="user-role">administrador</span>
+        </div>
+    </div>
+</header>

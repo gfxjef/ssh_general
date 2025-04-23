@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienestar - Grupo Kossodo</title>
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Estilos para el Carrusel */
+        #heroCarousel {
+            height: 50rem;
+            max-height: 70vh;
+            margin-bottom: 3rem;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Estilos mejorados para las imágenes del carrusel */
+        .carousel-item {
+            height: 100%;
+            position: relative;
+        }
+        
+        .carousel-image-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .carousel-img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .carousel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+            z-index: 1;
+        }
+        
+        .carousel-caption {
+            position: absolute;
+            bottom: 5rem; /* Ajusta la posición vertical del texto */
+            left: 15%;
+            right: 15%;
+            z-index: 2;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Sombra para legibilidad */
+        }
+        
+        .carousel-caption h5 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .carousel-caption p {
+            font-size: 1.2rem;
+        }
+        
+        .carousel-indicators [data-bs-target] {
+            background-color: rgba(255, 255, 255, 0.5); /* Color de indicadores inactivos */
+            border: none;
+            height: 5px;
+            width: 30px; /* Hacerlos más rectangulares */
+            margin: 0 5px;
+        }
+        
+        .carousel-indicators .active {
+            background-color: white; /* Color del indicador activo */
+        }
+        
+        /* Estilos generales (ya existentes) */
+        .category-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .featured-posts .card {
+            transition: transform 0.3s;
+        }
+        
+        .featured-posts .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <!-- Carrusel Hero -->
+            <section id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+                <div class="carousel-indicators" id="hero-carousel-indicators">
+                    <!-- Indicadores se cargarán dinámicamente -->
+                </div>
+                <div class="carousel-inner" id="hero-carousel-inner">
+                    <!-- Slides se cargarán dinámicamente -->
+                    <!-- Slide de fallback por si no cargan los posts -->
+                    <div class="carousel-item active" style="background-color: #6f42c1;">
+                        <div class="carousel-caption d-none d-md-block text-center">
+                            <h5 class="display-4 fw-bold mb-4">Bienestar y Talento</h5>
+                            <p class="lead mb-4">Una plataforma dedicada a promover el bienestar y desarrollo profesional.</p>
+                            <a href="{{ url_for('main.view_posts') }}" class="btn btn-light btn-lg">Explorar Posts</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </section>
+
+            <!-- Posts destacados (se mantiene igual) -->
+            <section class="featured-posts mb-5">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Posts Destacados</h2>
+                        <a href="{{ url_for('main.view_posts') }}" class="btn btn-outline-primary">Ver Todos</a>
+                    </div>
+                    <div id="featured-posts-container" class="row g-4">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2">Cargando posts destacados...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categorías (se mantiene igual) -->
+            <section class="categories-section mb-5">
+                <div class="container">
+                    <h2 class="text-center mb-4">Explora por Categoría</h2>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="category-card card text-center h-100 border-0 shadow-sm p-4">
+                                <div class="card-body">
+                                    <div class="category-icon text-primary"><i class="fas fa-brain"></i></div>
+                                    <h3 class="card-title h4">Salud Mental</h3>
+                                    <p class="card-text text-muted">Recursos y consejos para mantener una mente saludable.</p>
+                                    <a href="{{ url_for('main.view_posts') }}?category=salud-mental" class="btn btn-outline-primary mt-3">Ver Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="category-card card text-center h-100 border-0 shadow-sm p-4">
+                                <div class="card-body">
+                                    <div class="category-icon text-success"><i class="fas fa-heartbeat"></i></div>
+                                    <h3 class="card-title h4">Bienestar Físico</h3>
+                                    <p class="card-text text-muted">Actividades y recomendaciones para cuidar tu salud física.</p>
+                                    <a href="{{ url_for('main.view_posts') }}?category=bienestar-fisico" class="btn btn-outline-success mt-3">Ver Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="category-card card text-center h-100 border-0 shadow-sm p-4">
+                                <div class="card-body">
+                                    <div class="category-icon text-info"><i class="fas fa-chart-line"></i></div>
+                                    <h3 class="card-title h4">Desarrollo Profesional</h3>
+                                    <p class="card-text text-muted">Oportunidades de crecimiento y consejos para tu carrera.</p>
+                                    <a href="{{ url_for('main.view_posts') }}?category=desarrollo-profesional" class="btn btn-outline-info mt-3">Ver Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Llamado a la acción eliminado (se mantiene eliminado) -->
+        </main>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Standard App Scripts -->
+    <script src="{{ base_url }}/static/js/config.js"></script>
+    <script src="{{ base_url }}/static/js/authCheck.js"></script>
+    <script src="{{ base_url }}/static/js/search.js"></script>
+    <script src="{{ base_url }}/static/js/loadHeader.js"></script>
+    <script src="{{ base_url }}/static/js/loadSidebar.js"></script>
+    <script src="{{ base_url }}/static/js/logoutHandler.js"></script>
+      <!-- Bienestar specific scripts -->
+    <script src="{{ base_url }}/static/js/bienestar/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar posts para el carrusel y los destacados
+            loadPostsForHomepage();
+
+            // Función para cargar posts (carrusel y destacados)
+            async function loadPostsForHomepage() {
+                try {
+                    const response = await fetch('{{ base_url }}/api/posts/published');
+                    if (!response.ok) throw new Error('Error al cargar los posts');
+                    const data = await response.json();
+                    let posts = data.posts || [];
+
+                    // Filtrar solo posts publicados
+                    posts = posts.filter(post => post.status === 'published');
+
+                    // Ordenar por fecha de creación (más recientes primero)
+                    posts.sort((a, b) => new Date(b.created) - new Date(a.created));
+
+                    // Posts para el carrusel (con imagen de portada, máximo 5)
+                    const carouselPosts = posts.filter(post => post.coverImage).slice(0, 5);
+                    renderCarousel(carouselPosts);
+
+                    // Posts para destacados (máximo 3)
+                    const featuredPosts = posts.slice(0, 3);
+                    renderFeaturedPosts(featuredPosts);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Manejar error para carrusel (ya tiene un fallback)
+                    const featuredContainer = document.getElementById('featured-posts-container');
+                    if (featuredContainer) {
+                        featuredContainer.innerHTML = `
+                            <div class="col-12 text-center py-3">
+                                <div class="alert alert-danger" role="alert">
+                                    Error al cargar los posts destacados.
+                                </div>
+                            </div>`;
+                    }
+                }
+            }
+
+            // Renderizar el carrusel con elementos <img> en lugar de fondos
+            function renderCarousel(posts) {
+                const indicatorsContainer = document.getElementById('hero-carousel-indicators');
+                const innerContainer = document.getElementById('hero-carousel-inner');
+
+                if (!indicatorsContainer || !innerContainer) return;
+
+                // Limpiar contenedores (excepto el fallback inicial si no hay posts)
+                if (posts.length > 0) {
+                    indicatorsContainer.innerHTML = '';
+                    innerContainer.innerHTML = ''; // Limpiar el fallback si hay posts
+                } else {
+                    // Si no hay posts, no hacemos nada, se queda el slide de fallback
+                    return;
+                }
+
+                // Depuración - ver qué posts estamos recibiendo
+                console.log("Posts para carrusel:", posts);
+
+                posts.forEach((post, index) => {
+                    // Crear Indicador
+                    const indicator = document.createElement('button');
+                    indicator.type = 'button';
+                    indicator.dataset.bsTarget = '#heroCarousel';
+                    indicator.dataset.bsSlideTo = index.toString();
+                    if (index === 0) {
+                        indicator.classList.add('active');
+                        indicator.setAttribute('aria-current', 'true');
+                    }
+                    indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+                    indicatorsContainer.appendChild(indicator);
+
+                    // Crear Slide con estructura revisada para mejor visualización
+                    const slide = document.createElement('div');
+                    slide.classList.add('carousel-item');
+                    if (index === 0) {
+                        slide.classList.add('active');
+                    }
+
+                    // Usar elemento img en lugar de background-image
+                    const imgSrc = post.coverImage || '';
+                    slide.innerHTML = `
+                        <div class="carousel-image-container">
+                            <img src="${imgSrc}" class="carousel-img" alt="${post.title}">
+                            <div class="carousel-overlay"></div>
+                        </div>
+                        <div class="carousel-caption d-none d-md-block text-center">
+                            <h5>${post.title || 'Post sin título'}</h5>
+                            <p>${post.excerpt || 'No hay descripción disponible'}</p>
+                            <a href="/posts/post-detail?id=${post.id}" class="btn btn-light btn-lg mt-3">Leer Artículo</a>
+                        </div>
+                    `;
+
+                    innerContainer.appendChild(slide);
+                });
+            }
+
+            // Renderizar posts destacados (función existente, sin cambios)
+            function renderFeaturedPosts(posts) {
+                const container = document.getElementById('featured-posts-container');
+                if (!container) return;
+
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-3">
+                            <div class="alert alert-info" role="alert">
+                                No hay posts destacados disponibles.
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                posts.forEach(post => {
+                    const date = new Date(post.created);
+                    const formattedDate = date.toLocaleDateString('es-ES', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                    const postElement = document.createElement('div');
+                    postElement.className = 'col-lg-4 col-md-6';
+                    postElement.innerHTML = `
+                        <div class="card h-100 shadow-sm border-0">
+                            ${post.coverImage ?
+                                `<img src="${post.coverImage}" class="card-img-top" alt="${post.title}" style="height: 180px; object-fit: cover;">` :
+                                '<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                            }
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">${getCategoryName(post.category)}</span>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="/posts/post-detail?id=${post.id}" class="text-decoration-none text-dark stretched-link">
+                                        ${post.title}
+                                </a>
+                                </h5>
+                                <p class="card-text text-muted small mb-2">
+                                    <i class="far fa-calendar-alt me-1"></i> ${formattedDate}
+                                </p>
+                                <p class="card-text flex-grow-1">${post.excerpt || ''}</p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0">
+                                <!-- El enlace está en el título con stretched-link -->
+                            </div>
+                        </div>`;
+                    container.appendChild(postElement);
+                });
+            }
+
+            // Obtener nombre de categoría (función existente, sin cambios)
+            function getCategoryName(categoryValue) {
+                if (!categoryValue) return 'Sin categoría';
+                const categories = {
+                    'salud-mental': 'Salud Mental',
+                    'bienestar-fisico': 'Bienestar Físico',
+                    'desarrollo-profesional': 'Desarrollo Profesional',
+                    'clima-laboral': 'Clima Laboral',
+                    'reconocimientos': 'Reconocimientos',
+                    'bienestar': 'Bienestar', // Añadir categorías faltantes si es necesario
+                    'noticias': 'Noticias',
+                    'actividades': 'Actividades',
+                    'desarrollo': 'Desarrollo'
+                };
+                return categories[categoryValue.toLowerCase()] || categoryValue.charAt(0).toUpperCase() + categoryValue.slice(1);
+            }
+        });
+    </script>
+</body>
+</html>
