@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}Sistema de Seguimiento{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 70px; /* Espacio para el menú inferior */
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px 0;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .btn-mobile {
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-weight: 500;
+        }
+        .mobile-container {
+            max-width: 100%;
+            padding: 0 15px;
+        }
+        .mobile-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 0 12px 12px;
+        }
+        /* Optimizaciones táctiles para móvil */
+        .touch-item {
+            min-height: 44px;
+        }
+    </style>
+</head>
+<body>
+    {% if current_user.is_authenticated and request.endpoint != 'login' %}
+    <div class="mobile-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{% block header_title %}Sistema de Seguimiento{% endblock %}</h5>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="btn btn-light btn-sm">
+            <i class="bi bi-box-arrow-right"></i>
+        </a>
+        <form id="logout-form" action="{{ url_for('logout') }}" method="POST" style="display: none;"></form>
+    </div>
+    {% endif %}
+
+    <div class="mobile-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if current_user.is_authenticated and request.endpoint != 'login' %}
+    <div class="bottom-nav">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    {% if request.endpoint != 'lista_rutas' %}
+                    <a href="{{ url_for('lista_rutas') }}" class="btn btn-light w-100">
+                        <i class="bi bi-list-ul"></i><br>
+                        <small>Rutas</small>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    {% block scripts %}{% endblock %}
+</body>
+</html>

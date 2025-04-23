@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Ruta{% endblock %}
+{% block header_title %}Detalle de Ruta{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <div class="mb-3 pb-2 border-bottom">
+            <h5 class="fw-bold">{{ ruta.n_guia }}</h5>
+        </div>
+
+        <!-- Sección de Contacto -->
+        <div class="mb-3">
+            <h6 class="fw-bold mb-2 d-flex align-items-center">
+                <i class="bi bi-person-lines-fill me-2"></i>Contacto
+            </h6>
+            <div class="card bg-light mb-2">
+                <div class="card-body p-2">
+                    <div class="d-flex mb-1">
+                        <div style="width: 24px"><i class="bi bi-person"></i></div>
+                        <div>
+                            <p class="mb-0">{{ ruta.contacto }}</p>
+                            <small class="text-muted">{{ ruta.cargo }}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div style="width: 24px"><i class="bi bi-telephone"></i></div>
+                        <div>
+                            <a href="tel:{{ ruta.telefono }}" class="text-decoration-none">{{ ruta.telefono }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Ubicación -->
+        <div class="mb-3">
+            <h6 class="fw-bold mb-2 d-flex align-items-center">
+                <i class="bi bi-geo-alt-fill me-2"></i>Ubicación
+            </h6>
+            <div class="card bg-light mb-2">
+                <div class="card-body p-2">
+                    <p class="mb-2">{{ ruta.direccion }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ ruta.direccion|urlencode }}" 
+                           class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="bi bi-google me-1"></i>Google Maps
+                        </a>
+                        <a href="https://waze.com/ul?q={{ ruta.direccion|urlencode }}" 
+                           class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="bi bi-map me-1"></i>Waze
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Detalles -->
+        <div class="mb-3">
+            <h6 class="fw-bold mb-2 d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-2"></i>Detalles
+            </h6>
+            <div class="card bg-light mb-2">
+                <div class="card-body p-2">
+                    <div class="d-flex mb-1">
+                        <div style="width: 24px"><i class="bi bi-box-seam"></i></div>
+                        <div>
+                            <small class="text-muted">Paquete</small>
+                            <p class="mb-0">{{ ruta.detalles }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-2">
+                        <div style="width: 24px"><i class="bi bi-building"></i></div>
+                        <div>
+                            <small class="text-muted">Cliente</small>
+                            <p class="mb-0">{{ ruta.cliente }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Documentación -->
+        <div class="mb-3">
+            <h6 class="fw-bold mb-2 d-flex align-items-center">
+                <i class="bi bi-file-earmark-text-fill me-2"></i>Documentación
+            </h6>
+            <div class="card bg-light">
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush">
+                        {% for doc in ruta.documentos %}
+                        <li class="list-group-item bg-transparent px-0 py-1">
+                            <a href="{{ doc.url }}" class="text-decoration-none d-flex align-items-center">
+                                {% if doc.tipo == 'pdf' %}
+                                <i class="bi bi-file-pdf me-2 text-danger"></i>
+                                {% elif doc.tipo == 'imagen' %}
+                                <i class="bi bi-file-image me-2 text-primary"></i>
+                                {% else %}
+                                <i class="bi bi-file-earmark me-2 text-secondary"></i>
+                                {% endif %}
+                                <span>{{ doc.nombre }}</span>
+                                <i class="bi bi-download ms-auto"></i>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        {% if not ruta.documentos %}
+                        <li class="list-group-item bg-transparent px-0 py-1 text-muted">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span>No hay documentos adjuntos</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botones fijos en la parte inferior -->
+<div class="fixed-bottom bg-white pt-2 pb-3 px-3" style="border-top: 1px solid #eee; margin-bottom: 70px;">
+    <div class="row g-2">
+        <div class="col-6">
+            <a href="{{ url_for('rechazar_entrega', id_guia=ruta.id_guia) }}" class="btn btn-outline-danger btn-mobile w-100">
+                <i class="bi bi-x-circle"></i> Rechazar
+            </a>
+        </div>
+        <div class="col-6">
+            <a href="{{ url_for('confirmar_entrega', id_guia=ruta.id_guia) }}" class="btn btn-success btn-mobile w-100">
+                <i class="bi bi-check-circle"></i> Confirmar
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

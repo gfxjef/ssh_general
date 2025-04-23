@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Rechazar Entrega{% endblock %}
+{% block header_title %}Rechazar Entrega{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <div class="mb-3 pb-2 border-bottom">
+            <h5 class="fw-bold">{{ ruta.n_guia }}</h5>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Sección: Persona que confirma -->
+            <div class="mb-3">
+                <label class="form-label fw-bold mb-2">Persona que rechaza</label>
+                
+                <!-- Botones de selección de tipo de persona -->
+                <div class="btn-group w-100 mb-3" role="group" aria-label="Seleccionar tipo de persona">
+                    <button type="button" class="btn btn-outline-primary person-type-selector" data-type="destinatario">
+                        <i class="bi bi-person-check"></i> Destinatario
+                    </button>
+                    <button type="button" class="btn btn-outline-primary person-type-selector" data-type="otros">
+                        <i class="bi bi-person-plus"></i> Otros
+                    </button>
+                </div>
+                
+                <!-- Sección: Selección de destinatario -->
+                <div id="destinatarioSection" class="mb-3">
+                    <label for="contactoId" class="form-label">Seleccione el destinatario</label>
+                    <select class="form-select touch-item" id="contactoId" name="contactoId">
+                        <option value="{{ ruta.contacto|default('') }}">{{ ruta.contacto|default('Destinatario principal') }}</option>
+                        <!-- Aquí se pueden agregar más contactos si están disponibles -->
+                    </select>
+                </div>
+                
+                <!-- Sección: Otros -->
+                <div id="otrosSection" class="mb-3 d-none">
+                    <div class="card bg-light p-2 mb-3">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre y Apellido</label>
+                            <input type="text" class="form-control touch-item" id="nombre" name="nombre">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="dni" class="form-label">Documento de Identidad</label>
+                            <input type="number" class="form-control touch-item" id="dni" name="dni" inputmode="numeric" pattern="[0-9]*">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cargo" class="form-label">Cargo</label>
+                            <input type="text" class="form-control touch-item" id="cargo" name="cargo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección: Motivo del Rechazo -->
+            <div class="mb-3">
+                <label for="motivo" class="form-label fw-bold mb-2">Motivo del Rechazo</label>
+                <select class="form-select touch-item" id="motivo" name="motivo" required>
+                    <option value="">Seleccione un motivo</option>
+                    <option value="Destinatario Ausente">Destinatario Ausente</option>
+                    <option value="Dirección Incorrecta">Dirección Incorrecta</option>
+                    <option value="Cliente rechaza">Cliente rechaza el pedido</option>
+                    <option value="Problemas de acceso">Problemas de acceso</option>
+                    <option value="Falta documentación">Falta documentación</option>
+                    <option value="Otros">Otro Motivo</option>
+                </select>
+            </div>
+
+            <!-- Sección: Observaciones -->
+            <div class="mb-3">
+                <label for="observaciones" class="form-label fw-bold mb-2">Observaciones</label>
+                <textarea class="form-control touch-item" id="observaciones" name="observaciones" rows="2"></textarea>
+            </div>
+
+            <!-- Sección: Fotos de evidencia -->
+            <div class="mb-3">
+                <label class="form-label fw-bold mb-2">Fotos de evidencia</label>
+                
+                <div class="row" id="preview-container">
+                    <!-- Cuadrado para tomar foto -->
+                    <div class="col-6 mb-3">
+                        <div class="ratio ratio-1x1">
+                            <div class="border rounded d-flex align-items-center justify-content-center bg-light">
+                                <label for="foto1" class="text-center" style="cursor: pointer;">
+                                    <i class="bi bi-camera fs-1"></i><br>
+                                    <small>Tomar foto</small>
+                                </label>
+                                <input type="file" id="foto1" name="fotos" class="d-none" accept="image/*" capture="environment">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cuadrado para importar foto -->
+                    <div class="col-6 mb-3">
+                        <div class="ratio ratio-1x1">
+                            <div class="border rounded d-flex align-items-center justify-content-center bg-light">
+                                <label for="fileInput" class="text-center" style="cursor: pointer;">
+                                    <i class="bi bi-image fs-1"></i><br>
+                                    <small>Importar foto</small>
+                                </label>
+                                <input type="file" id="fileInput" name="fotosImportadas" class="d-none" accept="image/*" multiple>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor para las previsualizaciones de fotos -->
+                <div id="photo-previews" class="row mt-3"></div>
+            </div>
+
+            <!-- Botón fijo en la parte inferior -->
+            <div class="fixed-bottom bg-white pt-2 pb-3 px-3" style="border-top: 1px solid #eee; margin-bottom: 70px;">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{{ url_for('detalle_ruta', id_guia=ruta.id_guia) }}" class="btn btn-outline-secondary btn-mobile w-100">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-danger btn-mobile w-100">
+                            <i class="bi bi-x-circle"></i> Rechazar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campo oculto para tipo de persona -->
+            <input type="hidden" name="tipo_persona" value="destinatario">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/photo-upload.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Selección de tipo de persona
+        const personTypeButtons = document.querySelectorAll('.person-type-selector');
+        const destinatarioSection = document.getElementById('destinatarioSection');
+        const otrosSection = document.getElementById('otrosSection');
+        const contactoIdSelect = document.getElementById('contactoId');
+        
+        personTypeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remover clase activa de todos los botones
+                personTypeButtons.forEach(btn => btn.classList.remove('active'));
+                // Agregar clase activa al botón seleccionado
+                this.classList.add('active');
+                
+                const type = this.getAttribute('data-type');
+                if (type === 'destinatario') {
+                    destinatarioSection.classList.remove('d-none');
+                    otrosSection.classList.add('d-none');
+                    
+                    // Resetear campos de otros
+                    const inputsOtros = otrosSection.querySelectorAll('input');
+                    inputsOtros.forEach(input => input.value = '');
+                    
+                    // Establecer el tipo de persona en un campo oculto
+                    document.querySelector('input[name="tipo_persona"]').value = 'destinatario';
+                } else {
+                    destinatarioSection.classList.add('d-none');
+                    otrosSection.classList.remove('d-none');
+                    
+                    // Resetear selección de destinatario
+                    contactoIdSelect.selectedIndex = 0;
+                    
+                    // Establecer el tipo de persona en un campo oculto
+                    document.querySelector('input[name="tipo_persona"]').value = 'otros';
+                }
+            });
+        });
+        
+        // Manejo de las fotos importadas
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (!files.length) return;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Crear un nuevo contenedor de vista previa
+                        const newPreviewDiv = document.createElement('div');
+                        newPreviewDiv.className = 'col-6 mb-3';
+                        newPreviewDiv.innerHTML = `
+                            <div class="ratio ratio-1x1">
+                                <div class="border rounded position-relative" 
+                                     style="background-image: url('${e.target.result}'); 
+                                            background-size: cover; 
+                                            background-position: center;">
+                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 delete-photo">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Agregar evento para eliminar la foto
+                        const deleteBtn = newPreviewDiv.querySelector('.delete-photo');
+                        deleteBtn.addEventListener('click', function() {
+                            newPreviewDiv.remove();
+                        });
+                        
+                        // Agregar el nuevo preview al contenedor
+                        document.getElementById('preview-container').appendChild(newPreviewDiv);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

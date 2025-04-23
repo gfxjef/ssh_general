@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Rutas{% endblock %}
+{% block header_title %}Rutas Asignadas{% endblock %}
+
+{% block content %}
+<div class="list-group mb-4">
+    {% for ruta in rutas %}
+    <a href="{{ url_for('detalle_ruta', id_guia=ruta.id_guia) }}" class="list-group-item list-group-item-action touch-item">
+        <div class="d-flex w-100 justify-content-between align-items-center py-2">
+            <div>
+                <h5 class="mb-1 fw-bold">{{ ruta.n_guia }}</h5>
+                <p class="mb-1">{{ ruta.direccion }}</p>
+                <small class="text-muted">{{ ruta.contacto }}</small>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if not rutas %}
+<div class="alert alert-info">
+    No hay rutas asignadas en este momento.
+</div>
+{% endif %}
+{% endblock %}
