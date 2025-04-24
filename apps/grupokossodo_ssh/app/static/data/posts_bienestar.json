@@ -41,19 +41,19 @@
         {
             "id": "3",
             "title": "Nuevas capacitaciones en desarrollo profesional",
-            "content": "<h2>Mejora tus habilidades profesionales</h2><p>Nos complace anunciar el lanzamiento de nuestro nuevo catálogo de capacitaciones para el segundo semestre del año. Estas formaciones están diseñadas para potenciar tus habilidades y favorecer tu crecimiento profesional dentro de la organización.</p><h3>Cursos disponibles:</h3><ul><li>Liderazgo efectivo en entornos cambiantes</li><li>Comunicación asertiva y negociación</li><li>Gestión del tiempo y productividad</li><li>Innovación y pensamiento creativo</li></ul><p>Todas las capacitaciones cuentan con certificación oficial y son impartidas por profesionales expertos en cada área.</p><img src='https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1000' alt='Capacitación'/><p>Consulta con tu supervisor para obtener más información sobre el proceso de inscripción.</p>",
+            "content": "<h2>Mejora tus habilidades profesionales</h2><p>Nos complace anunciar el lanzamiento de nuestro nuevo catálogo de capacitaciones para el segundo semestre del año. Estas formaciones están diseñadas para potenciar tus habilidades y favorecer tu crecimiento profesional dentro de la organización.</p><h3>Cursos disponibles:</h3><ul><li>Liderazgo efectivo en entornos cambiantes</li><li>Comunicación asertiva y negociación</li><li>Gestión del tiempo y productividad</li><li>Innovación y pensamiento creativo</li></ul><p>Todas las capacitaciones cuentan con certificación oficial y son impartidas por profesionales expertos en cada área.</p><img src=\"https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&amp;w=1000\" alt=\"Capacitación\"><p>Consulta con tu supervisor para obtener más información sobre el proceso de inscripción.</p>",
             "excerpt": "Descubre las nuevas oportunidades de formación profesional disponibles para el próximo semestre y potencia tu carrera.",
-            "category": "desarrollo",
+            "category": "bienestar-fisico",
             "tags": [
                 "capacitación",
                 "desarrollo profesional",
                 "habilidades",
                 "carrera"
             ],
-            "status": "draft",
+            "status": "published",
             "visibility": "public",
             "created": "2023-06-25T09:15:00",
-            "updated": "2025-04-22T16:18:42.296987",
+            "updated": "2025-04-24T09:31:04.796625",
             "author": "Departamento de Talento Humano",
             "coverImage": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1000"
         },
@@ -79,38 +79,39 @@
         {
             "id": "6",
             "title": "Próximo lanzamiento: Programa de reconocimiento",
-            "content": "<h2>Celebrando el talento y dedicación de nuestro equipo</h2><p>Estamos emocionados de anunciar el próximo lanzamiento de nuestro nuevo Programa de Reconocimiento, diseñado para valorar y celebrar las contribuciones excepcionales de nuestros colaboradores.</p><h3>Categorías de reconocimiento:</h3><ul><li>Innovación y mejora continua</li><li>Excelencia en servicio al cliente</li><li>Colaboración y trabajo en equipo</li><li>Compromiso con los valores organizacionales</li><li>Trayectoria y desarrollo profesional</li></ul><p>El programa incorpora un sistema de nominación transparente donde todos pueden participar reconociendo el trabajo de sus compañeros.</p><img src='https://images.unsplash.com/photo-1551836022-aadb801c60e0?q=80&w=1000' alt='Reconocimiento'/><p>La presentación oficial será el próximo mes. Mantente atento a más información sobre cómo participar.</p>",
+            "content": "<h2>Celebrando el talento y dedicación de nuestro equipo</h2><p>Estamos emocionados de anunciar el próximo lanzamiento de nuestro nuevo Programa de Reconocimiento, diseñado para valorar y celebrar las contribuciones excepcionales de nuestros colaboradores.</p><h3>Categorías de reconocimiento:</h3><ul><li>Innovación y mejora continua</li><li>Excelencia en servicio al cliente</li><li>Colaboración y trabajo en equipo</li><li>Compromiso con los valores organizacionales</li><li>Trayectoria y desarrollo profesional</li></ul><p>El programa incorpora un sistema de nominación transparente donde todos pueden participar reconociendo el trabajo de sus compañeros.</p><img src=\"https://images.unsplash.com/photo-1551836022-aadb801c60e0?q=80&amp;w=1000\" alt=\"Reconocimiento\"><p>La presentación oficial será el próximo mes. Mantente atento a más información sobre cómo participar.</p>",
             "excerpt": "Conoce en primicia nuestro nuevo Programa de Reconocimiento que pronto lanzaremos para celebrar el talento y la dedicación de nuestro equipo.",
-            "category": "noticias",
+            "category": "clima-laboral",
             "tags": [
+                "desarrollo",
                 "reconocimiento",
                 "talento",
-                "motivación",
-                "desarrollo"
+                "motivación"
             ],
-            "status": "draft",
+            "status": "published",
             "visibility": "sede",
             "created": "2023-07-05T16:20:00",
-            "updated": "2025-04-13T16:53:11.987344",
+            "updated": "2025-04-24T09:31:17.130969",
             "author": "Dirección de Talento Humano",
-            "coverImage": "https://images.unsplash.com/photo-1447684808650-354ae64db5b8?q=80&w=1000"
+            "coverImage": "https://images.unsplash.com/photo-1447684808650-354ae64db5b8?q=80&w=1000",
+            "targetGroup": "lima"
         },
         {
             "id": "7",
             "title": "Curso de mindfulness para equipos directivos",
             "content": "<h2>Potencia tu liderazgo a través del mindfulness</h2><p>Dirigido exclusivamente a nuestro equipo directivo, este curso intensivo está diseñado para desarrollar habilidades de liderazgo consciente a través de prácticas de mindfulness.</p><h3>Objetivos del curso:</h3><ul><li>Mejorar la toma de decisiones bajo presión</li><li>Desarrollar una mayor claridad mental</li><li>Fortalecer la capacidad de escucha activa</li><li>Cultivar la resiliencia ante situaciones desafiantes</li></ul><p>El curso será impartido por el Dr. Roberto Vega, especialista en mindfulness aplicado al entorno empresarial con más de 15 años de experiencia.</p><img src=\"https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?q=80&amp;w=1000\" alt=\"Mindfulness\"><p>Se realizará durante cuatro sesiones de tres horas cada una, los días viernes del mes de agosto. sssss</p>",
             "excerpt": "Curso exclusivo para directivos sobre cómo aplicar técnicas de mindfulness para mejorar el liderazgo y la toma de decisiones.",
-            "category": "clima-laboral",
+            "category": "reconocimientos",
             "tags": [
                 "mindfulness",
                 "liderazgo",
                 "desarrollo directivo",
                 "habilidades blandas"
             ],
-            "status": "draft",
+            "status": "published",
             "visibility": "grupo",
             "created": "2023-07-08T11:30:00",
-            "updated": "2025-04-22T16:18:30.656639",
+            "updated": "2025-04-24T09:31:29.081328",
             "author": "Departamento de Formación",
             "coverImage": "https://images.unsplash.com/photo-1545989253-02cc26577f88?q=80&w=1000",
             "targetGroup": "nuevos"

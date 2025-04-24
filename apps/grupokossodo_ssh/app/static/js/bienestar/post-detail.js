@@ -1,4 +1,3 @@
-
 // Script para la página de detalle de post
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener ID del post desde la URL
@@ -65,10 +64,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderPost(post) {
         if (!postTemplate || !postDetailContainer) return;
         
+        // Debug - check what's coming from the API
+        console.log("Post data:", post);
+        console.log("Cover image exists:", !!post.coverImage);
+        
         // Clonar template del post
         const postContent = postTemplate.cloneNode(true);
         postContent.id = '';
         postContent.style.display = 'block';
+
+        // Debug - verify DOM structure
+        console.log("Template structure:", postContent.innerHTML);
+        const featuredImageContainer = postContent.querySelector('.post-featured-image-container');
+        console.log("Featured image container found:", !!featuredImageContainer);
         
         // Formatear fecha
         const date = new Date(post.created);
@@ -85,17 +93,22 @@ document.addEventListener('DOMContentLoaded', function() {
         postContent.querySelector('.post-author span').textContent = post.author || 'Equipo de Bienestar';
         postContent.querySelector('.post-content').innerHTML = post.content || '';
         
-        // Si hay imagen de portada, configurar el encabezado
-        if (post.cover_image) {
-            const header = postContent.querySelector('.post-header');
-            header.classList.add('with-image');
-            
-            const img = document.createElement('img');
-            img.src = post.cover_image;
-            img.alt = post.title;
-            img.className = 'post-featured-image';
-            
-            header.insertBefore(img, header.firstChild);
+        // Handle featured image container first (now before the header)
+        if (featuredImageContainer) {
+            console.log("Container found, checking for image");
+            if (post.coverImage) {
+                console.log("Cover image found:", post.coverImage);
+                const featuredImg = document.createElement('img');
+                featuredImg.src = post.coverImage;
+                featuredImg.alt = post.title;
+                featuredImg.className = 'post-featured-image-main';
+                
+                featuredImageContainer.innerHTML = ''; // Clear container first
+                featuredImageContainer.appendChild(featuredImg);
+                featuredImageContainer.style.display = 'block';
+            } else {
+                featuredImageContainer.style.display = 'none';
+            }
         }
         
         // Renderizar etiquetas
@@ -176,8 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 postElement.innerHTML = `
                     <div class="related-card">
-                        ${post.cover_image ? 
-                            `<img src="${post.cover_image}" class="related-img" alt="${post.title}">` :
+                        ${post.coverImage ? 
+                            `<img src="${post.coverImage}" class="related-img" alt="${post.title}">` :
                             '<div class="related-img bg-light"></div>'
                         }
                         <div class="card-body p-3">

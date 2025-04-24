@@ -13,38 +13,10 @@
     <style>
     /* Estilos específicos para detalle de post */
     .post-header {
-        padding: 1rem 0;
+        padding: 0rem 0rem 2rem 0rem;
         margin-bottom: 2rem;
         position: relative;
-    }
-    .post-header.with-image {
-        color: white;
-        padding: 8rem 0 4rem;
-        position: relative;
-        background-color: #343a40;
-    }
-    .post-header.with-image::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
-        z-index: 1;
-    }
-    .post-header.with-image .container {
-        position: relative;
-        z-index: 2;
-    }
-    .post-featured-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 0;
+        background-color: transparent; /* Ensure no background color */
     }
     .post-category {
         display: inline-block;
@@ -246,6 +218,23 @@
         text-align: center;
         padding: 3rem 0;
     }
+
+    .post-featured-image-container {
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+
+    .post-featured-image-container img {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        object-fit: cover;
+        max-height: 300px;
+    }
+
 </style>
 
 </head>
@@ -279,6 +268,10 @@
     
     <!-- Template para el post -->
     <div id="post-template" style="display: none;">
+        <div class="post-featured-image-container">
+            <!-- Image will be added here by JavaScript -->
+        </div>
+        
         <header class="post-header">
             <div class="container">
                 <div class="post-category"></div>
@@ -294,26 +287,6 @@
         
         <div class="post-tags"></div>
         
-        <div class="post-share">
-            <h3 class="share-title">Compartir este post</h3>
-            <div class="share-buttons">
-                <a href="#" class="share-btn share-facebook" target="_blank" title="Compartir en Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="share-btn share-twitter" target="_blank" title="Compartir en Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#" class="share-btn share-linkedin" target="_blank" title="Compartir en LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-                <a href="#" class="share-btn share-whatsapp" target="_blank" title="Compartir en WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" class="share-btn share-mail" title="Compartir por correo">
-                    <i class="far fa-envelope"></i>
-                </a>
-            </div>
-        </div>
         
         <div class="post-navigation">
             <a href="#" class="nav-link prev-post" style="display: none;">

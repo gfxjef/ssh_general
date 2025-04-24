@@ -1,5 +1,3 @@
-
-
 // Script para la página de administración de posts
 document.addEventListener('DOMContentLoaded', function() {
     // Variables globales
@@ -83,6 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     }
+    
+
     
     // Configurar listeners de eventos
     function setupEventListeners() {
@@ -348,42 +348,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Añadir eventos a los botones de acción
+    // Añadir eventos a los botones de acción de cada fila
     function addActionButtonsEvents() {
-        // Botones de edición
+        // Botones de editar
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const postId = this.getAttribute('data-id'); // Usar data-id (no data-post-id)
+                const postId = this.getAttribute('data-id');
                 window.location.href = AppConfig.getFullPath(`/bienestar/post-editor?id=${postId}`);
             });
         });
         
-        // Botón de cambio de estado
+        // Botones de eliminar
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const postId = this.getAttribute('data-id');
+                openDeleteModal(postId);
+            });
+        });
+        
+        // Botones de cambiar estado
         document.querySelectorAll('.status-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const postId = this.getAttribute('data-id');
                 const currentStatus = this.getAttribute('data-status');
                 const newStatus = currentStatus === 'published' ? 'draft' : 'published';
-                
                 updatePostStatus(postId, newStatus);
             });
         });
         
-        // Botón de cambio de visibilidad
+        // Botones de cambiar visibilidad
         document.querySelectorAll('.visibility-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const postId = this.getAttribute('data-id');
                 const currentVisibility = this.getAttribute('data-visibility');
-                
                 openVisibilityModal(postId, currentVisibility);
-            });
-        });
-        
-        // Botón de eliminación
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const postId = this.getAttribute('data-id');
-                openDeleteModal(postId);
             });
         });
     }

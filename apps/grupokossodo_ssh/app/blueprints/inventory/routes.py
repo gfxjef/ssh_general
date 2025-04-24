@@ -518,3 +518,18 @@ def obtener_confirmaciones():
 def solicitud_merchandising():
     """Muestra la página de solicitud de merchandising"""
     return render_template('merchandising/solicitud.html')
+
+@inventory_bp.route('/inventory/merchandising/confirmacion', methods=['GET'])
+def confirmacion_merchandising():
+    """Muestra la página de confirmación de solicitudes de merchandising"""
+    return render_template('merchandising/confirmacion.html')
+
+@inventory_bp.route('/inventory/merchandising/historial', methods=['GET'])
+def historial_merchandising():
+    """Muestra la página de historial de confirmaciones de merchandising"""
+    return render_template('merchandising/historial.html')
+
+@inventory_bp.route('/inventory/merchandising/inventario', methods=['GET'])
+def inventario_merchandising():
+    """Muestra la página de gestión de inventario de merchandising"""
+    return render_template('merchandising/inventario.html')

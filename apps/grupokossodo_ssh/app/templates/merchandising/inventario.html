@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Dashboard</title>
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <style>
+        /* Estilos para secciones */
+        .seccion-visible {
+            display: block;
+        }
+        
+        .seccion-oculta {
+            display: none;
+        }
+        
+        /* Estilos para botones de navegación */
+        .botones-navegacion {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .boton-activo {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .boton-inactivo {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Estilos para tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        table th, table td {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        /* Estilos para formularios */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-group button {
+            margin-top: 10px;
+        }
+        
+        /* Estilos para mensajes */
+        .success-message {
+            color: green;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #e8f5e9;
+            border-left: 5px solid green;
+        }
+        
+        .error-message {
+            color: red;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ffebee;
+            border-left: 5px solid red;
+        }
+        
+        /* Preview de nombre de columna */
+        .preview {
+            background-color: #f8f9fa;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        /* Título secundario */
+        .titulo-secundario {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="sistema-inventario">
+                <h1>Sistema de Inventario</h1>
+                
+                <!-- Botones de navegación -->
+                <div class="botones-navegacion">
+                    <button id="btnInventario" class="boton-activo">Agregar Inventario</button>
+                    <button id="btnProducto" class="boton-inactivo">Agregar Producto</button>
+                </div>
+
+                <!-- Sección: Agregar Inventario -->
+                <div id="inventarioSection" class="seccion-visible">
+                    <h2 class="titulo-secundario">Agregar Inventario</h2>
+                    <form id="formInventario">
+                        <!-- Seleccionar Sede -->
+                        <div class="form-group">
+                            <label for="sedeInventario">Sede</label>
+                            <select id="sedeInventario" required>
+                                <option value="" disabled selected>Seleccione una sede</option>
+                                <option value="kossodo">Kossodo</option>
+                                <option value="kossomet">Kossomet</option>
+                            </select>
+                        </div>
+                        <!-- Responsable -->
+                        <div class="form-group">
+                            <label for="responsableInventario">Responsable</label>
+                            <input type="text" id="responsableInventario" required>
+                        </div>
+
+                        <!-- Sección de Agregar Productos (carrito) -->
+                        <div class="form-group">
+                            <h3>Agregar Productos</h3>
+                            <div class="form-group">
+                                <label for="productoSelect">Producto</label>
+                                <select id="productoSelect">
+                                    <!-- Se llenará dinámicamente con las columnas "merch_*" -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productoCantidad">Cantidad</label>
+                                <input type="number" id="productoCantidad" min="1" value="1">
+                            </div>
+                            <button type="button" id="btnAgregarProducto" class="btn btn-primary">Agregar</button>
+                            
+                            <!-- Tabla resumen de productos agregados -->
+                            <table id="tablaProductos">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Botón para enviar el inventario completo -->
+                        <button type="submit" id="btnEnviarInventario" class="btn btn-success">Enviar Inventario</button>
+                    </form>
+                    <div id="mensajeInventario" class="mensaje"></div>
+                </div>
+
+                <!-- NUEVA SECCIÓN: Mostrar Stock de Productos -->
+                <div id="stockSection" class="seccion-visible">
+                    <h2 class="titulo-secundario">Stock de Productos</h2>
+                    <table id="tablaStock">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2">Seleccione una sede para ver el stock.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sección: Agregar Producto (nuevo producto) -->
+                <div id="productoSection" class="seccion-oculta">
+                    <h2 class="titulo-secundario">Agregar Nuevo Producto</h2>
+                    <form id="formNuevoProducto">
+                        <div class="form-group">
+                            <label for="nuevaSede">Seleccione Sede</label>
+                            <select id="nuevaSede" required>
+                                <option value="" disabled selected>Seleccione una sede</option>
+                                <option value="kossodo">Kossodo</option>
+                                <option value="kossomet">Kossomet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombreProducto">Nombre de Producto</label>
+                            <input type="text" id="nombreProducto" placeholder="Ejemplo: Lapicero Esco" required>
+                        </div>
+                        <!-- Nuevo campo: Tipo -->
+                        <div class="form-group">
+                            <label for="tipoProducto">Tipo</label>
+                            <select id="tipoProducto" required>
+                                <option value="" disabled selected>Seleccione el tipo</option>
+                                <option value="normal">Normal</option>
+                                <option value="ejecutivo">Ejecutivo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cantidadInicial">Cantidad Inicial</label>
+                            <input type="number" id="cantidadInicial" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre de Columna</label>
+                            <div id="nombreColumnaPreview" class="preview">merch_...</div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Agregar Nuevo Producto</button>
+                    </form>
+                    <div id="mensajeNuevoProducto" class="mensaje"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load scripts in order -->
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authCheck.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Obtener datos del usuario actual de la sesión
+    const userData = JSON.parse(sessionStorage.getItem('userData'));
+    
+    if (userData && userData.nombre) {
+        // Autocompletar el campo responsable
+        const responsableInput = document.getElementById('responsableInventario');
+        responsableInput.value = userData.nombre;
+        responsableInput.readOnly = true;
+        
+        // Nota: No autocompletamos la sede, se deja seleccionable
+    }
+});
+
+        // Botones de navegación y secciones
+        const btnInventario = document.getElementById('btnInventario');
+        const btnProducto = document.getElementById('btnProducto');
+        const inventarioSection = document.getElementById('inventarioSection');
+        const productoSection = document.getElementById('productoSection');
+
+        function mostrarSeccion(seccion) {
+            if (seccion === 'inventario') {
+                inventarioSection.classList.add('seccion-visible');
+                inventarioSection.classList.remove('seccion-oculta');
+                productoSection.classList.add('seccion-oculta');
+                productoSection.classList.remove('seccion-visible');
+                btnInventario.classList.add('boton-activo');
+                btnInventario.classList.remove('boton-inactivo');
+                btnProducto.classList.add('boton-inactivo');
+                btnProducto.classList.remove('boton-activo');
+            } else {
+                inventarioSection.classList.add('seccion-oculta');
+                inventarioSection.classList.remove('seccion-visible');
+                productoSection.classList.add('seccion-visible');
+                productoSection.classList.remove('seccion-oculta');
+                btnInventario.classList.add('boton-inactivo');
+                btnInventario.classList.remove('boton-activo');
+                btnProducto.classList.add('boton-activo');
+                btnProducto.classList.remove('boton-inactivo');
+            }
+        }
+
+        // Mostrar la sección de inventario por defecto
+        mostrarSeccion('inventario');
+        btnInventario.addEventListener('click', () => mostrarSeccion('inventario'));
+        btnProducto.addEventListener('click', () => mostrarSeccion('producto'));
+
+        /***************************************
+         *       AGREGAR INVENTARIO
+         ***************************************/
+        const carrito = {};
+
+        function actualizarTablaCarrito() {
+            const tbody = document.querySelector('#tablaProductos tbody');
+            tbody.innerHTML = '';
+            for (const [producto, cantidad] of Object.entries(carrito)) {
+                const tr = document.createElement('tr');
+                const tdProducto = document.createElement('td');
+                // Mostrar nombre amigable del producto
+                let amigable = producto.replace(/^merch_/, '').replace(/_/g, ' ');
+                amigable = amigable.charAt(0).toUpperCase() + amigable.slice(1);
+                tdProducto.textContent = amigable;
+                
+                const tdCantidad = document.createElement('td');
+                tdCantidad.textContent = cantidad;
+                
+                const tdAccion = document.createElement('td');
+                const btnEliminar = document.createElement('button');
+                btnEliminar.textContent = 'Eliminar';
+                btnEliminar.className = 'btn btn-danger btn-sm';
+                btnEliminar.addEventListener('click', () => {
+                    delete carrito[producto];
+                    actualizarTablaCarrito();
+                });
+                tdAccion.appendChild(btnEliminar);
+                
+                tr.appendChild(tdProducto);
+                tr.appendChild(tdCantidad);
+                tr.appendChild(tdAccion);
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Cargar las columnas "merch_*" de la tabla inventario para la sede elegida
+        function loadProductosDropdown(sede) {
+            // Fix the endpoint path: change "inventario" to "inventory"
+            const url = AppConfig.getFullPath(`/api/inventory?tabla=${sede}`);
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('productoSelect');
+                    select.innerHTML = '';
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Buscamos todas las columnas "merch_*" presentes en las filas
+                        const columnsSet = new Set();
+                        data.forEach(row => {
+                            Object.keys(row).forEach(col => {
+                                if (col.startsWith('merch_')) {
+                                    columnsSet.add(col);
+                                }
+                            });
+                        });
+                        // Creamos un option por cada columna encontrada
+                        const columnasArray = Array.from(columnsSet).sort();
+                        columnasArray.forEach(col => {
+                            const option = document.createElement('option');
+                            option.value = col;
+                            let amigable = col.replace(/^merch_/, '').replace(/_/g, ' ');
+                            amigable = amigable.charAt(0).toUpperCase() + amigable.slice(1);
+                            option.textContent = amigable;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        select.innerHTML = '<option value="">No hay productos registrados</option>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar productos:', err);
+                    const select = document.getElementById('productoSelect');
+                    select.innerHTML = '<option value="">Error al cargar productos</option>';
+                });
+        }
+
+        /**
+         * Carga el stock utilizando el endpoint /api/stock?grupo=...
+         * Se itera sobre las claves que comienzan con "merch_" y se muestran en la tabla.
+         */
+        function loadStockData(sede) {
+            const url = AppConfig.getFullPath(`/api/inventory/stock?grupo=${sede}`);
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('#tablaStock tbody');
+                    tbody.innerHTML = '';
+                    if (data.error) {
+                        tbody.innerHTML = `<tr><td colspan="2">${data.error}</td></tr>`;
+                        return;
+                    }
+                    let hayStock = false;
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith('merch_')) {
+                            const qty = parseInt(data[key]) || 0;
+                            if (qty > 0) {
+                                hayStock = true;
+                                const tr = document.createElement('tr');
+                                const tdProducto = document.createElement('td');
+                                let amigable = key.replace(/^merch_/, '').replace(/_/g, ' ');
+                                amigable = amigable.charAt(0).toUpperCase() + amigable.slice(1);
+                                tdProducto.textContent = amigable;
+                                const tdCantidad = document.createElement('td');
+                                tdCantidad.textContent = qty;
+                                tr.appendChild(tdProducto);
+                                tr.appendChild(tdCantidad);
+                                tbody.appendChild(tr);
+                            }
+                        }
+                    });
+                    if (!hayStock) {
+                        tbody.innerHTML = '<tr><td colspan="2">No se encontraron productos en stock.</td></tr>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar stock:', err);
+                    const tbody = document.querySelector('#tablaStock tbody');
+                    tbody.innerHTML = `<tr><td colspan="2">Error al cargar stock: ${err.message}</td></tr>`;
+                });
+        }
+
+        // Al cambiar la sede en el formulario de inventario se carga el dropdown de productos y el stock
+        document.getElementById('sedeInventario').addEventListener('change', function() {
+            const sede = this.value;
+            if (sede) {
+                loadProductosDropdown(sede);
+                loadStockData(sede);
+            }
+        });
+
+        // Agregar producto al carrito
+        document.getElementById('btnAgregarProducto').addEventListener('click', () => {
+            const select = document.getElementById('productoSelect');
+            const producto = select.value;
+            const cantidadInput = document.getElementById('productoCantidad');
+            const cant = parseInt(cantidadInput.value) || 0;
+            if (!producto || cant <= 0) {
+                alert('Seleccione un producto y coloque una cantidad > 0');
+                return;
+            }
+            // Suma o agrega el producto al carrito
+            carrito[producto] = (carrito[producto] || 0) + cant;
+            actualizarTablaCarrito();
+            cantidadInput.value = 1;
+        });
+
+        // Enviar formulario de inventario
+        document.getElementById('formInventario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const sede = document.getElementById('sedeInventario').value;
+            const responsable = document.getElementById('responsableInventario').value.trim();
+            if (!sede || !responsable) {
+                alert("Complete los campos requeridos (Sede y Responsable).");
+                return;
+            }
+            if (Object.keys(carrito).length === 0) {
+                alert("No ha agregado ningún producto.");
+                return;
+            }
+            // Construir el payload a enviar
+            const payload = { responsable };
+            for (const [prod, cant] of Object.entries(carrito)) {
+                payload[prod] = cant;
+            }
+            // Fix the endpoint URL here too
+            fetch(AppConfig.getFullPath(`/api/inventory?tabla=${sede}`), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(result => {
+                const msgDiv = document.getElementById('mensajeInventario');
+                if (result.error) {
+                    msgDiv.innerHTML = `<div class="error-message">${result.error}</div>`;
+                } else {
+                    msgDiv.innerHTML = `<div class="success-message">Inventario agregado. ID: ${result.id}</div>`;
+                    document.getElementById('formInventario').reset();
+                    // Vaciar el carrito
+                    for (const key in carrito) {
+                        delete carrito[key];
+                    }
+                    actualizarTablaCarrito();
+                }
+            })
+            .catch(err => {
+                document.getElementById('mensajeInventario').innerHTML = 
+                    `<div class="error-message">Error: ${err.message}</div>`;
+            });
+        });
+
+        /***************************************
+         *       AGREGAR NUEVO PRODUCTO
+         ***************************************/
+        function normalizarTexto(str) {
+            return str
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9\s]/g, '')
+                .trim()
+                .replace(/\s+/g, '_');
+        }
+
+        // Actualizar la vista previa del nombre de columna según el nombre y tipo
+        function updateNombreColumnaPreview() {
+            const nombreInput = document.getElementById('nombreProducto').value;
+            const tipo = document.getElementById('tipoProducto').value;
+            const preview = document.getElementById('nombreColumnaPreview');
+            const valor = normalizarTexto(nombreInput);
+            if (!valor) {
+                preview.textContent = 'merch_...';
+            } else {
+                let columna = `merch_${valor}`;
+                if (tipo === 'ejecutivo') {
+                    columna += '_eje';
+                }
+                preview.textContent = columna;
+            }
+        }
+
+        document.getElementById('nombreProducto').addEventListener('input', updateNombreColumnaPreview);
+        document.getElementById('tipoProducto').addEventListener('change', updateNombreColumnaPreview);
+
+        document.getElementById('formNuevoProducto').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const sede = document.getElementById('nuevaSede').value;
+            const nombreOriginal = document.getElementById('nombreProducto').value.trim();
+            const cantInicial = parseInt(document.getElementById('cantidadInicial').value) || 0;
+            const tipo = document.getElementById('tipoProducto').value;
+            if (!sede || !nombreOriginal || !tipo) {
+                alert("Complete los campos requeridos.");
+                return;
+            }
+            const columnaNormalizada = normalizarTexto(nombreOriginal);
+            let columna;
+            if (tipo === 'ejecutivo') {
+                columna = `merch_${columnaNormalizada}_eje`;
+            } else {
+                columna = `merch_${columnaNormalizada}`;
+            }
+            const payload = {
+                grupo: sede,
+                nombre_producto: nombreOriginal,
+                columna: columna,
+                cantidad: cantInicial
+            };
+            fetch(AppConfig.getFullPath('/api/nuevo_producto'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(result => {
+                const msgDiv = document.getElementById('mensajeNuevoProducto');
+                if (result.error) {
+                    msgDiv.innerHTML = `<div class="error-message">${result.error}</div>`;
+                } else {
+                    msgDiv.innerHTML = `<div class="success-message">
+                        Nuevo producto agregado correctamente. ID: ${result.id}
+                    </div>`;
+                    document.getElementById('formNuevoProducto').reset();
+                    document.getElementById('nombreColumnaPreview').textContent = 'merch_...';
+                }
+            })
+            .catch(err => {
+                document.getElementById('mensajeNuevoProducto').innerHTML = 
+                    `<div class="error-message">Error: ${err.message}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>

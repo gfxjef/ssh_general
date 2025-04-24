@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmaciones - Dashboard</title>
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <style>
+        /* Estilos para la tabla de solicitudes */
+        #tablaSolicitudes {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        
+        #tablaSolicitudes th, #tablaSolicitudes td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        #tablaSolicitudes th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        #tablaSolicitudes tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Estilos para los modales */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #343a40;
+        }
+        
+        .close-button {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .close-button:hover {
+            color: #343a40;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            background-color: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .modal-footer button {
+            padding: 8px 16px;
+            margin-left: 10px;
+        }
+        
+        /* Estilos para los productos */
+        .producto-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        
+        .producto-item label {
+            flex: 1;
+            margin-bottom: 0;
+            margin-right: 10px;
+        }
+        
+        .producto-item input {
+            width: 80px;
+            margin-right: 10px;
+        }
+        
+        .btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+        
+        .success-message {
+            color: green;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #e8f5e9;
+            border-left: 5px solid green;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            color: red;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ffebee;
+            border-left: 5px solid red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="sistema-inventario">
+                <h1>Confirmaciones de Solicitudes</h1>
+                
+                <div id="mainContent">
+                    <table id="tablaSolicitudes">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Solicitante</th>
+                                <th>Grupo</th>
+                                <th>Fecha Visita</th>
+                                <th>Cantidad Packs</th>
+                                <th>Status</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+
+                    <!-- Contenedor para el modal -->
+                    <div id="modalConfirmacion" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Confirmar Solicitud #<span id="solicitudIdModal"></span></h3>
+                                <span class="close-button" id="closeModal">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="hiddenSolicitudId">
+                                <input type="hidden" id="hiddenGrupo">
+
+                                <div class="form-group">
+                                    <label for="confirmador">Confirmador (automático)</label>
+                                    <input type="text" id="confirmador" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="catalogosModal">Catálogos</label>
+                                    <textarea id="catalogosModal" rows="1" readonly></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="observaciones">Observaciones (Opcional)</label>
+                                    <textarea id="observaciones" rows="2"></textarea>
+                                </div>
+
+                                <hr>
+                                <h3>Productos Solicitados:</h3>
+                                <div id="productosContainer"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="btnAgregarProducto" class="btn btn-outline-secondary">Agregar Producto</button>
+                                <div>
+                                    <button type="button" id="btnCerrarModal" class="btn btn-outline-secondary">Cerrar</button>
+                                    <button type="button" id="btnConfirmarSolicitud" class="btn btn-primary">Confirmar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal para agregar nuevos productos -->
+                    <div id="modalAgregarProducto" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Productos a agregar en <span id="grupoModal"></span></h3>
+                                <span class="close-button" id="closeModalProducto">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="productoSelect">Producto (stock disponible)</label>
+                                    <select id="productoSelect" class="form-select">
+                                        <option value="">Cargando productos...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cantidadProducto">Cantidad</label>
+                                    <input type="number" id="cantidadProducto" min="1" value="1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="btnCerrarModalProducto" class="btn btn-outline-secondary">Cancelar</button>
+                                <button type="button" id="btnAgregarProductoConfirm" class="btn btn-primary">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mensaje" class="mensaje"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load scripts in order -->
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authCheck.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    
+    <script>
+        // Mapeo correcto de nombres de productos
+        const PRODUCTOS_MAPPING = {
+            'merch_lapiceros_normales': 'merch_lapiceros_normales',
+            'merch_lapicero_ejecutivos': 'merch_lapicero_ejecutivos',
+            'merch_blocks': 'merch_blocks',
+            'merch_tacos': 'merch_tacos',
+            'merch_gel_botella': 'merch_gel_botella',
+            'merch_bolas_antiestres': 'merch_bolas_antiestres',
+            'merch_padmouse': 'merch_padmouse',
+            'merch_bolsa': 'merch_bolsa',
+            'merch_lapiceros_esco': 'merch_lapiceros_esco'
+        };
+        
+        // Productos disponibles en stock - Se llenará dinámicamente
+        let productosDisponibles = {};
+
+        function cargarSolicitudesPendientes() {
+            fetch(AppConfig.getFullPath('/api/solicitudes?status=pending'))
+                .then(r => r.json())
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error('La respuesta no es un array');
+                    }
+                    const tbody = document.querySelector('#tablaSolicitudes tbody');
+                    tbody.innerHTML = '';
+                    data.forEach(solic => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${solic.id}</td>
+                            <td>${solic.solicitante}</td>
+                            <td>${solic.grupo}</td>
+                            <td>${solic.fecha_visita}</td>
+                            <td>${solic.cantidad_packs}</td>
+                            <td>${solic.status}</td>
+                            <td>
+                                <button onclick="abrirModalConfirmacion(${solic.id})" class="btn btn-primary btn-sm">
+                                    Confirmar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('mensaje').innerHTML = 
+                        `<div class="error-message">Error cargando solicitudes: ${err.message}</div>`;
+                });
+        }
+
+        // Cargar datos de stock para un grupo específico
+        function loadStockData(grupo) {
+            const url = AppConfig.getFullPath(`/api/inventory/stock?grupo=${grupo}`);
+            return fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    productosDisponibles = {};
+                    const select = document.getElementById('productoSelect');
+                    select.innerHTML = '';
+                    
+                    let hayStock = false;
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith('merch_')) {
+                            const qty = parseInt(data[key]) || 0;
+                            if (qty > 0) {
+                                hayStock = true;
+                                let amigable = key.replace(/^merch_/, '').replace(/_/g, ' ');
+                                amigable = amigable.charAt(0).toUpperCase() + amigable.slice(1);
+                                
+                                // Guardar en productosDisponibles
+                                productosDisponibles[key] = {
+                                    nombre: amigable,
+                                    cantidad: qty
+                                };
+                                
+                                // Agregar al select
+                                const option = document.createElement('option');
+                                option.value = key;
+                                option.textContent = `${amigable} (Stock: ${qty})`;
+                                select.appendChild(option);
+                            }
+                        }
+                    });
+                    
+                    if (!hayStock) {
+                        select.innerHTML = '<option value="">No hay productos en stock</option>';
+                    }
+                    
+                    return productosDisponibles;
+                });
+        }
+
+        function abrirModalConfirmacion(solicitudId) {
+            document.getElementById('solicitudIdModal').textContent = solicitudId;
+            document.getElementById('hiddenSolicitudId').value = solicitudId;
+            
+            // Obtener datos del usuario actual de la sesión
+            const userData = JSON.parse(sessionStorage.getItem('userData'));
+            
+            // Autocompletar el campo de confirmador con el nombre del usuario logueado
+            document.getElementById('confirmador').value = userData && userData.nombre ? userData.nombre : '';
+            // Opcionalmente, hacer el campo de solo lectura ya que se autocompleta
+            document.getElementById('confirmador').readOnly = true;
+            
+            document.getElementById('observaciones').value = '';
+            document.getElementById('catalogosModal').value = '';
+            document.getElementById('productosContainer').innerHTML = 'Cargando productos...';
+
+            fetch(AppConfig.getFullPath(`/api/solicitudes?id=${solicitudId}`))
+                .then(r => r.json())
+                .then(data => {
+                    const solicitud = Array.isArray(data) ? data.find(s => s.id === solicitudId) : null;
+                    if (!solicitud) {
+                        throw new Error('Solicitud no encontrada');
+                    }
+
+                    // Guardar el grupo para usar al agregar productos
+                    document.getElementById('hiddenGrupo').value = solicitud.grupo;
+                    document.getElementById('catalogosModal').value = solicitud.catalogos || '';
+
+                    let productos = [];
+                    try {
+                        if (solicitud.productos) {
+                            // If already an array, use it directly
+                            if (Array.isArray(solicitud.productos)) {
+                                productos = solicitud.productos;
+                            } 
+                            // If it's a string but not starting with '[', treat as a single product or comma-separated list
+                            else if (typeof solicitud.productos === 'string') {
+                                // Check if it looks like JSON
+                                if (solicitud.productos.trim().startsWith('[')) {
+                                    productos = JSON.parse(solicitud.productos);
+                                } else {
+                                    // Handle as a single product or comma-separated list
+                                    productos = solicitud.productos.includes(',') 
+                                        ? solicitud.productos.split(',').map(p => p.trim())
+                                        : [solicitud.productos.trim()];
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error procesando productos:', e);
+                        productos = [];
+                    }
+
+                    const cantidadSolicitada = solicitud.cantidad_packs || 0;
+                    const html = productos.map(prod => {
+                        const nombreProd = prod.replace(/^merch_/, '').replace(/_/g, ' ');
+                        return `
+                            <div class="form-group producto-item">
+                                <label for="${prod}_cantidad">${nombreProd.charAt(0).toUpperCase() + nombreProd.slice(1)}:</label>
+                                <input type="number" id="${prod}_cantidad" value="${cantidadSolicitada}" min="0" 
+                                    data-producto="${PRODUCTOS_MAPPING[prod] || prod}">
+                                <button type="button" class="btn-eliminar" data-producto="${PRODUCTOS_MAPPING[prod] || prod}">
+                                    X
+                                </button>
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('productosContainer').innerHTML = 
+                        html || '<p>No hay productos en esta solicitud.</p>';
+                        
+                    // Agregar event listeners a los botones de eliminar
+                    document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const producto = this.getAttribute('data-producto');
+                            eliminarProducto(producto);
+                        });
+                    });
+                    
+                    // Cargar productos disponibles en stock para este grupo
+                    loadStockData(solicitud.grupo);
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('productosContainer').innerHTML = 
+                        `<div class="error-message">Error: ${err.message}</div>`;
+                });
+
+            document.getElementById('modalConfirmacion').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalConfirmacion').style.display = 'none';
+        }
+
+        function cerrarModalProducto() {
+            document.getElementById('modalAgregarProducto').style.display = 'none';
+        }
+        
+        function eliminarProducto(producto) {
+            const elemento = document.querySelector(`[data-producto="${producto}"]`).closest('.producto-item');
+            if (elemento) {
+                elemento.remove();
+            }
+        }
+        
+        function abrirModalAgregarProducto() {
+            const grupo = document.getElementById('hiddenGrupo').value;
+            document.getElementById('grupoModal').textContent = grupo;
+            document.getElementById('cantidadProducto').value = 1;
+            
+            // Actualizar el selector de productos con los disponibles
+            document.getElementById('modalAgregarProducto').style.display = 'block';
+        }
+        
+        function agregarProductoALista() {
+            const productoSelect = document.getElementById('productoSelect');
+            const productoKey = productoSelect.value;
+            const cantidad = parseInt(document.getElementById('cantidadProducto').value) || 1;
+            
+            if (!productoKey || !productosDisponibles[productoKey]) {
+                alert('Por favor seleccione un producto válido');
+                return;
+            }
+            
+            // Verificar si el producto ya está en la lista
+            const existente = document.querySelector(`[data-producto="${productoKey}"]`);
+            if (existente) {
+                existente.value = parseInt(existente.value) + cantidad;
+            } else {
+                const productoNombre = productosDisponibles[productoKey].nombre;
+                
+                const nuevoProducto = document.createElement('div');
+                nuevoProducto.className = 'form-group producto-item';
+                nuevoProducto.innerHTML = `
+                    <label for="${productoKey}_cantidad">${productoNombre}:</label>
+                    <input type="number" id="${productoKey}_cantidad" value="${cantidad}" min="0" 
+                        data-producto="${productoKey}">
+                    <button type="button" class="btn-eliminar" data-producto="${productoKey}">
+                        X
+                    </button>
+                `;
+                
+                document.getElementById('productosContainer').appendChild(nuevoProducto);
+                
+                // Agregar event listener al botón eliminar
+                const btnEliminar = nuevoProducto.querySelector('.btn-eliminar');
+                btnEliminar.addEventListener('click', function() {
+                    eliminarProducto(productoKey);
+                });
+            }
+            
+            cerrarModalProducto();
+        }
+
+        // Eventos al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('closeModal').addEventListener('click', cerrarModal);
+            document.getElementById('btnCerrarModal').addEventListener('click', cerrarModal);
+            document.getElementById('closeModalProducto').addEventListener('click', cerrarModalProducto);
+            document.getElementById('btnCerrarModalProducto').addEventListener('click', cerrarModalProducto);
+            document.getElementById('btnAgregarProducto').addEventListener('click', abrirModalAgregarProducto);
+            document.getElementById('btnAgregarProductoConfirm').addEventListener('click', agregarProductoALista);
+    
+            document.getElementById('btnConfirmarSolicitud').addEventListener('click', function() {
+                const solicitudId = document.getElementById('hiddenSolicitudId').value;
+                const confirmador = document.getElementById('confirmador').value.trim();
+                const observaciones = document.getElementById('observaciones').value.trim();
+    
+                if (!confirmador) {
+                    alert("Por favor ingrese el nombre del confirmador");
+                    return;
+                }
+    
+                const productos = {};
+                document.querySelectorAll('#productosContainer input[data-producto]').forEach(input => {
+                    const producto = input.getAttribute('data-producto');
+                    const cantidad = parseInt(input.value) || 0;
+                    productos[producto] = cantidad;
+                });
+    
+                const payload = {
+                    confirmador,
+                    observaciones,
+                    productos
+                };
+    
+                fetch(AppConfig.getFullPath(`/api/solicitudes/${solicitudId}/confirm`), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.error) {
+                        throw new Error(result.error);
+                    }
+                    document.getElementById('mensaje').innerHTML = 
+                        `<div class="success-message">${result.message}</div>`;
+                    
+                    cerrarModal();
+                    cargarSolicitudesPendientes();
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('mensaje').innerHTML = 
+                        `<div class="error-message">Error: ${err.message}</div>`;
+                });
+            });
+        });
+
+        // Window load event
+        window.addEventListener('load', cargarSolicitudesPendientes);
+
+        // Make abrirModalConfirmacion global
+        window.abrirModalConfirmacion = abrirModalConfirmacion;
+    </script>
+</body>
+</html>

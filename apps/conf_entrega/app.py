@@ -19,12 +19,9 @@ class User(UserMixin):
     def __init__(self, id):
         self.id = id
 
-
 # Datos de ejemplo (reemplazar con base de datos)
-users = {
-    'admin': {'password': 'admin123'},
-    'tu_usuario': {'password': 'tu_contraseña'}
-}
+users = {'admin': {'password': 'admin123'}}
+
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
@@ -35,9 +32,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        # Usar la función de verificación de credenciales de la base de datos
-        if db.verificar_credenciales(username, password):
+        if username in users and users[username]['password'] == password:
             user = User(username)
             login_user(user)
             return redirect(url_for('lista_rutas'))
@@ -238,8 +233,8 @@ def confirmar_entrega(id_guia):
                     form_data['rece_nombre'],
                     form_data['rece_dni'],
                     form_data['rece_cargo'],
-                    firma_url,  # Guardar la URL de la firma, no los datos en base64
-                    fotos_string,  # String de URLs separadas por comas
+                    firma_url,
+                    fotos_string,
                     form_data['entregado'],
                     form_data['entrega_fecha'],
                     id_guia
@@ -298,11 +293,8 @@ def rechazar_entrega(id_guia):
                 
                 for i, foto in enumerate(fotos):
                     if foto and foto.filename:
-                        # Generar nombre único para el archivo
                         extension = foto.filename.rsplit('.', 1)[1].lower() if '.' in foto.filename else 'jpg'
                         foto_filename = f"rechazo_foto_{i+1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{extension}"
-                        
-                        # Subir al FTP
                         foto_url = upload_file(ruta['n_guia'], foto, foto_filename)
                         if foto_url:
                             fotos_urls.append(foto_url)
@@ -337,8 +329,6 @@ def rechazar_entrega(id_guia):
         if 'connection' in locals():
             connection.close()
 
-
-
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
@@ -352,31 +342,35 @@ def guardar_datos():
     Endpoint para guardar datos en las tablas de seguimiento.
     Espera un JSON con la siguiente estructura:
     {
-        "ruta": {
-            "n_ruta": "string",
-            "placa_vehiculo": "string",
-            "operador_1": "string",
-            "auxiliar_1": "string"
-        },
-        "guias": [
-            {
-                "n_guia": "string",
-                "direccion": "string",
-                "contacto": "string",
-                "cliente": "string",
-                "telefono": "string",
-                "cargo": "string",
-                "detalles": "string",
-                "entrega_fecha": "YYYY-MM-DD HH:MM:SS" (opcional),
-                "ventas": {
-                    "n_oc": "string",
-                    "doc1": "string" (opcional),
-                    "doc2": "string" (opcional),
-                    "doc3": "string" (opcional),
-                    "doc4": "string" (opcional)
-                }
-            }
-        ]
+      "ruta": {
+        "n_ruta": "Nombre de la ruta",
+        "placa_vehiculo": "Placa del vehículo",
+        "operador_1": "Nombre del operador",
+        "auxiliar_1": "Nombre del auxiliar"
+      },
+      "guias": [
+        {
+          "n_guia": "Número o código de la guía",
+          "direccion": "Dirección de entrega",
+          "contacto": "Nombre de la persona de contacto",
+          "cliente": "Nombre del cliente",
+          "telefono": "Teléfono de contacto",
+          "cargo": "Cargo o rol del destinatario",
+          "detalles": {
+            "Bultos": "cantidad de bultos",
+            "Codigos": "códigos de productos",
+            "Peso": "peso de producto"
+          },
+          "entrega_fecha": "YYYY-MM-DD HH:MM:SS",
+          "ventas": {
+            "n_oc": "Número de orden de compra",
+            "doc1": "URL o referencia del documento 1",
+            "doc2": "URL o referencia del documento 2",
+            "doc3": "URL o referencia del documento 3",
+            "doc4": "URL o referencia del documento 4"
+          }
+        }
+      ]
     }
     """
     try:
@@ -415,6 +409,17 @@ def guardar_datos():
                     if field not in guia_data or not guia_data[field]:
                         return jsonify({'error': f'El campo {field} es obligatorio en los datos de guía'}), 400
                 
+                # Validar que 'detalles' sea un objeto y contenga las claves específicas
+                if not isinstance(guia_data['detalles'], dict):
+                    return jsonify({'error': 'El campo detalles debe ser un objeto con las claves Bultos, Codigos y Peso'}), 400
+                detalles_required_keys = ['Bultos', 'Codigos', 'Peso']
+                for key in detalles_required_keys:
+                    if key not in guia_data['detalles'] or not guia_data['detalles'][key]:
+                        return jsonify({'error': f'El campo {key} es obligatorio en detalles'}), 400
+                
+                # Convertir el objeto de detalles a cadena JSON para almacenarlo en la BD
+                detalles_str = json.dumps(guia_data['detalles'])
+                
                 # Convertir fecha de entrega si existe
                 entrega_fecha = None
                 if 'entrega_fecha' in guia_data and guia_data['entrega_fecha']:
@@ -432,7 +437,7 @@ def guardar_datos():
                     guia_data['cliente'],
                     guia_data['telefono'],
                     guia_data['cargo'],
-                    guia_data['detalles'],
+                    detalles_str,
                     entrega_fecha
                 )
                 
@@ -450,20 +455,17 @@ def guardar_datos():
                     
                     # Verificar si se está usando el nuevo formato con campo 'doc'
                     if 'doc' in ventas_data:
-                        # Usar el nuevo formato directamente
                         id_seg_vent = db.guardar_seguimiento_ventas_nuevo(
                             id_guia,
                             ventas_data['n_oc'],
                             ventas_data.get('doc')
                         )
                     else:
-                        # Mantener compatibilidad con formato antiguo
                         doc1 = ventas_data.get('doc1')
                         doc2 = ventas_data.get('doc2')
                         doc3 = ventas_data.get('doc3')
                         doc4 = ventas_data.get('doc4')
                         
-                        # Guardar datos de ventas
                         id_seg_vent = db.guardar_seguimiento_ventas(
                             id_guia,
                             ventas_data['n_oc'],
@@ -511,7 +513,6 @@ def actualizar_entrega(id_guia):
         if 'entregado' not in data:
             return jsonify({'error': 'El campo entregado es obligatorio'}), 400
         
-        # Convertir fotos a formato JSON string si existe
         fotos = None
         if 'fotos' in data and data['fotos']:
             if isinstance(data['fotos'], list):
@@ -519,7 +520,6 @@ def actualizar_entrega(id_guia):
             else:
                 fotos = data['fotos']
         
-        # Actualizar datos de entrega
         actualizado = db.actualizar_entrega_guia(
             id_guia,
             data['entregado'],

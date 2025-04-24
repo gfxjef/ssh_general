@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Confirmaciones - Dashboard</title>
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <style>
+        /* Estilos para la tabla de confirmaciones */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        
+        #tablaConfirmaciones {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        
+        #tablaConfirmaciones th, #tablaConfirmaciones td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        #tablaConfirmaciones th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        #tablaConfirmaciones tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Estilos para los modales */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #343a40;
+        }
+        
+        .close-button {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .close-button:hover {
+            color: #343a40;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            background-color: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .modal-footer button {
+            padding: 8px 16px;
+            margin-left: 10px;
+        }
+        
+        /* Estilos para las tarjetas */
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .producto-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .no-productos, .no-observaciones {
+            padding: 15px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .success-message {
+            color: green;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #e8f5e9;
+            border-left: 5px solid green;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            color: red;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ffebee;
+            border-left: 5px solid red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="sistema-inventario">
+                <h1>Historial de Confirmaciones</h1>
+                
+                <div id="mainContent">
+                    <div class="table-wrapper">
+                        <table id="tablaConfirmaciones">
+                            <thead>
+                                <tr>
+                                    <th>Solicitud ID</th>
+                                    <th>Confirmador</th>
+                                    <th>Grupo</th>
+                                    <th>ID Solicitud Original</th>
+                                    <th>Solicitante</th>
+                                    <th>RUC</th>
+                                    <th>Fecha Visita</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Contenedor para el modal de detalles -->
+                    <div id="modalDetalles" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Detalles de Confirmación #<span id="modalSolicitudId"></span></h3>
+                                <span class="close-button" id="closeModalDetalles">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>Observaciones</strong>
+                                    </div>
+                                    <div class="card-body" id="detallesObservaciones">
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>Productos Confirmados</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="productos-json" id="detallesProductos"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="btnCerrarModalDetalles" class="btn btn-outline-secondary">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mensaje" class="mensaje"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load scripts in order -->
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authCheck.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    
+    <script>
+        // Función para formatear los productos JSON
+        function formatProductos(productosJson) {
+            try {
+                let productos = productosJson;
+                
+                // Si es string, intentar parsearlo
+                if (typeof productosJson === 'string') {
+                    productos = JSON.parse(productosJson);
+                }
+                
+                // Si después del parsing no es un objeto, mostrar mensaje
+                if (!productos || typeof productos !== 'object') {
+                    return '<div class="no-productos">No hay productos registrados</div>';
+                }
+                
+                return Object.entries(productos)
+                    .map(([producto, cantidad]) => {
+                        const nombreProd = producto.replace(/^merch_/, '').replace(/_/g, ' ');
+                        return `<div class="producto-item">
+                            <strong>${nombreProd.charAt(0).toUpperCase() + nombreProd.slice(1)}:</strong> ${cantidad} unidades
+                        </div>`;
+                    })
+                    .join('') || '<div class="no-productos">No hay productos registrados</div>';
+            } catch (e) {
+                console.error('Error procesando productos:', e);
+                return '<div class="no-productos">No hay productos registrados o formato incorrecto</div>';
+            }
+        }
+
+        // Función para mostrar el modal con observaciones y productos
+        function mostrarDetalles(solicitudId, observaciones, productos) {
+            document.getElementById('modalSolicitudId').textContent = solicitudId;
+            document.getElementById('detallesObservaciones').innerHTML = observaciones || 
+                '<div class="no-observaciones">Sin observaciones</div>';
+            document.getElementById('detallesProductos').innerHTML = formatProductos(productos);
+            document.getElementById('modalDetalles').style.display = 'block';
+        }
+
+        // Función para cerrar el modal de detalles
+        function cerrarModalDetalles() {
+            document.getElementById('modalDetalles').style.display = 'none';
+        }
+
+        // Función para formatear fecha
+        function formatearFecha(fecha) {
+            if (!fecha) return '-';
+            return new Date(fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        // Función para obtener todas las solicitudes de una vez
+        async function obtenerTodasLasSolicitudes() {
+            try {
+                const response = await fetch(AppConfig.getFullPath('/api/solicitudes'));
+                const data = await response.json();
+                return Array.isArray(data) ? data : [];
+            } catch (err) {
+                console.error('Error obteniendo todas las solicitudes:', err);
+                return [];
+            }
+        }
+
+        // Función para cargar las confirmaciones
+        async function cargarConfirmaciones() {
+            try {
+                // Obtener todas las confirmaciones y todas las solicitudes en paralelo
+                const [confirmacionesResponse, todasLasSolicitudes] = await Promise.all([
+                    fetch(AppConfig.getFullPath('/api/confirmaciones')).then(r => r.json()),
+                    obtenerTodasLasSolicitudes()
+                ]);
+
+                if (!Array.isArray(confirmacionesResponse)) {
+                    throw new Error('La respuesta de confirmaciones no es un array');
+                }
+
+                // Crear un mapa de solicitudes por ID para acceso rápido
+                const solicitudesMap = new Map(
+                    todasLasSolicitudes.map(sol => [sol.id, sol])
+                );
+
+                const tbody = document.querySelector('#tablaConfirmaciones tbody');
+                tbody.innerHTML = '';
+
+                // Procesar cada confirmación
+                confirmacionesResponse.forEach(conf => {
+                    const solicitudOriginal = solicitudesMap.get(conf.solicitud_id);
+                    
+                    const tr = document.createElement('tr');
+                    
+                    // Usamos una función segura para crear el botón con los datos correctos
+                    const crearBotonDetalles = (id, obs, prods) => {
+                        const btn = document.createElement('button');
+                        btn.innerText = 'Más detalles';
+                        btn.classList.add('btn', 'btn-primary', 'btn-sm');
+                        btn.addEventListener('click', () => mostrarDetalles(id, obs, prods));
+                        return btn;
+                    };
+                    
+                    tr.innerHTML = `
+                        <td>${conf.solicitud_id || '-'}</td>
+                        <td>${conf.confirmador || '-'}</td>
+                        <td>${conf.grupo || '-'}</td>
+                        <td>${solicitudOriginal?.id || '-'}</td>
+                        <td>${solicitudOriginal?.solicitante || '-'}</td>
+                        <td>${solicitudOriginal?.ruc || '-'}</td>
+                        <td>${formatearFecha(solicitudOriginal?.fecha_visita)}</td>
+                        <td></td>
+                    `;
+                    
+                    // Agregar el botón de detalles de forma segura
+                    const acciones = tr.querySelector('td:last-child');
+                    acciones.appendChild(crearBotonDetalles(
+                        conf.solicitud_id, 
+                        conf.observaciones, 
+                        conf.productos
+                    ));
+                    
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('mensaje').innerHTML =
+                    `<div class="error-message">Error cargando confirmaciones: ${err.message}</div>`;
+            }
+        }
+
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('closeModalDetalles').addEventListener('click', cerrarModalDetalles);
+            document.getElementById('btnCerrarModalDetalles').addEventListener('click', cerrarModalDetalles);
+            
+            // Make mostrarDetalles global so it can be called from HTML
+            window.mostrarDetalles = mostrarDetalles;
+        });
+
+        // Cargar datos al iniciar
+        window.addEventListener('load', cargarConfirmaciones);
+    </script>
+</body>
+</html>
