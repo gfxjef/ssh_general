@@ -10,6 +10,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# product files
+posts_bienestar.json
+
 # Distribution / packaging
 dist/
 build/

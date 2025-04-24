@@ -312,11 +312,7 @@ header {
 }
 
 /* Perfil de usuario en el header */
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+
 
 .user-info {
     display: flex;
@@ -327,6 +323,11 @@ header {
 .user-name {
   font-weight: 600;
   color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  display: inline; /* Asegura que no tenga saltos de línea */
+
 }
 .user-profile .user-info {
   display: flex;
@@ -336,7 +337,8 @@ header {
 .user-role {
   font-size: 0.8rem;
   color: var(--text-light);
-  margin-top: 2px;
+  display: inline; /* Asegura que no tenga saltos de línea */
+
 }
 .logout-btn {
     background: none;

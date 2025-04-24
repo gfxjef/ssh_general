@@ -111,24 +111,15 @@ header {
     flex-direction: row; /* Asegura que los elementos estén en fila */
 }
 
-.user-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    display: inline; /* Asegura que no tenga saltos de línea */
-}
+
 
 .user-separator {
-    margin: 0 5px;
+    margin: 0 0px;
     color: var(--text-light);
     display: inline;
 }
 
-.user-role {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    display: inline; /* Asegura que no tenga saltos de línea */
-}
+
 
 /* Modificar los estilos para el nuevo diseño de búsqueda con SVG */
 
