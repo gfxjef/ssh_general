@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeFiltersContainer = document.getElementById('active-filters');
     const emptyState = document.getElementById('empty-state');
     const clearFiltersBtn = document.getElementById('clear-filters');
+    const paginationContainer = document.getElementById('pagination-container');
     
     // Filtros activos
     let activeFilters = {
@@ -249,8 +250,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Renderizar posts
         renderPosts(true);
         
-        // Actualizar controles de paginación
-        updatePaginationControls();
+        // Add this line to ensure pagination is updated after posts are rendered
+        updatePagination();
         
         // Mostrar u ocultar estado vacío
         if (filteredPosts.length === 0) {
