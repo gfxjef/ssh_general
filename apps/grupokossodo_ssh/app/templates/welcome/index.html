@@ -7,6 +7,7 @@
     <title>Bienestar - Grupo Kossodo</title>    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
     <link rel="stylesheet" href="{{ base_url }}/static/css/sidebar.css">
     <!-- Bootstrap CSS -->
+     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -94,11 +95,28 @@
         }
         
         .featured-posts .card {
-            transition: transform 0.3s;
+            transition: transform 0.5s ease-out;
+            border-radius: 20px;
+            overflow: hidden;
         }
-        
+
         .featured-posts .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-6px);
+        }
+
+        /* Mobile responsive carousel height */
+        @media (max-width: 576px) {
+            #heroCarousel {
+                height: 200px;
+            }
+            
+            .carousel-caption h5 {
+                font-size: 1.5rem;
+            }
+            
+            .carousel-caption p {
+                font-size: 1rem;
+            }
         }
 
 
@@ -131,7 +149,7 @@
         .featured-posts .card:hover {
             transform: translateY(-6px);
         }
-        
+
 
         </style>
 </head>

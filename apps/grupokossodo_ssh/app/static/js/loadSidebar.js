@@ -154,3 +154,11 @@ function loadSidebarContent(searchInstance) { // Recibe searchInstance
             sidebarContainer.innerHTML = '<p>Error loading sidebar</p>';
         });
 }
+
+    // al final de loadSidebar.js, justo antes de cerrar el addEventListener('DOMContentLoaded', ...)
+    const toggleBtn = document.querySelector('#menu-toggle-btn');
+    if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+        document.getElementById('sidebarContainer').classList.toggle('show');
+    });
+    }
