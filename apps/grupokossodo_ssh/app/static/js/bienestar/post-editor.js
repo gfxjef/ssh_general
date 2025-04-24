@@ -428,8 +428,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Redirigir según el estado del post
                 if (postStatus.value === 'published') {
                     alert('¡Post publicado exitosamente!');
-                    window.location.href = `/posts/post-detail?id=${data.post.id}`;
-                } else {                    alert('¡Post guardado como borrador exitosamente!');
+                    window.location.href = AppConfig.getFullPath('/bienestar/post-detail') + `?id=${data.post.id}`;
+                } else {                    
+                    alert('¡Post guardado como borrador exitosamente!');
                     window.location.href = AppConfig.getFullPath('/bienestar/manage-posts');
                 }
             } else {
