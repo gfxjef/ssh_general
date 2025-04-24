@@ -10,23 +10,23 @@ class MenuAccessManager {
             // Permisos jerárquicos usando notación de ruta
             this.permissions = {
                 // Menús principales
-                'Marketing': ['admin', 'gerente', 'vendedor', 'almacen','asesor'],
-                'Ventas': ['admin', 'gerente'],
+                'Marketing': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
+                'Ventas': ['admin', 'gerente','marketing'],
                 'Bienestar de Talento': ['admin', 'gerente','rrhh','atencion'],
                 'Seguimiento de Pedidos': ['admin', 'gerente', 'vendedor', 'almacen'],
                 
                 // Submenús de Marketing
-                'Marketing/Inventario': ['admin', 'gerente', 'almacen'],
-                'Marketing/Merchandising': ['admin', 'gerente', 'vendedor', 'almacen','asesor'],
+                'Marketing/Inventario': ['admin', 'gerente', 'almacen','marketing'],
+                'Marketing/Merchandising': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
                 
                 // Submenús específicos de Marketing/Merchandising
-                'Marketing/Merchandising/Solicitud de Merchandising': ['admin', 'gerente', 'vendedor','asesor'],
-                'Marketing/Merchandising/Confirmación Solicitudes': ['admin', 'gerente', 'almacen'],
-                'Marketing/Merchandising/Historial Confirmaciones': ['admin', 'gerente'],
+                'Marketing/Merchandising/Solicitud de Merchandising': ['admin', 'gerente', 'vendedor','asesor','marketing'],
+                'Marketing/Merchandising/Confirmación Solicitudes': ['admin', 'gerente', 'almacen','marketing'],
+                'Marketing/Merchandising/Historial Confirmaciones': ['admin', 'gerente','marketing'],
                 
                 // Submenús de Ventas
                 'Ventas/Encuestas': ['admin', 'gerente','atencion'],
-                'Ventas/Encuestas/Registro Calificaciones': ['admin', 'gerente','atencion'],
+                'Ventas/Encuestas/Registro Calificaciones': ['admin', 'gerente','atencion','marketing'],
                 
                 // Submenús de Bienestar
                 'Bienestar de Talento/Posts': ['admin', 'gerente', 'rrhh'],
