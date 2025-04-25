@@ -28,20 +28,28 @@ def init_pdf_processor():
         pdf_processor = PDFProcessor()
     return pdf_processor
 
-@pdf_reader_bp.before_app_first_request
-def setup_app():
-    """Configuración que se realiza antes de la primera solicitud"""
-    # Asegurar que existan los directorios necesarios
-    pdf_dir = os.path.join(current_app.root_path, 'templates', 'pdf_reader', 'pdf')
-    upload_dir = os.path.join(current_app.root_path, 'templates', 'pdf_reader', 'uploads')
-    
-    os.makedirs(pdf_dir, exist_ok=True)
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    logger.info(f"Directorios inicializados: {pdf_dir}, {upload_dir}")
-    
-    # Inicializar el procesador de PDF
-    init_pdf_processor()
+_initialized = False  # Variable para controlar si ya se inicializó
+
+@pdf_reader_bp.record
+def on_blueprint_register(state):
+    """Se ejecuta cuando el blueprint se registra en la aplicación"""
+    global _initialized
+    if not _initialized:
+        app = state.app
+        with app.app_context():
+            # Código original de setup_app
+            pdf_dir = os.path.join(app.root_path, 'templates', 'pdf_reader', 'pdf')
+            upload_dir = os.path.join(app.root_path, 'templates', 'pdf_reader', 'uploads')
+            
+            os.makedirs(pdf_dir, exist_ok=True)
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            logger.info(f"Directorios inicializados: {pdf_dir}, {upload_dir}")
+            
+            # Inicializar el procesador de PDF
+            init_pdf_processor()
+            
+            _initialized = True
 
 # Resto del código de tu archivo app.py...
 @pdf_reader_bp.route('/')
