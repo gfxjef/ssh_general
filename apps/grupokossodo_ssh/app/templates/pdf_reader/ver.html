@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Catálogos - Grupo Kossodo</title>
+    
+    <!-- Standard CSS files -->
+    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Catalog viewer specific styles */
+        :root {
+          /* Color system */
+          --color-primary: #000000;
+          --color-secondary: #ffffff;
+          --color-accent: #3b82f6;
+          --color-gray-100: #f3f4f6;
+          --color-gray-200: #e5e7eb;
+          --color-gray-300: #d1d5db;
+          --color-gray-400: #9ca3af;
+          --color-gray-500: #6b7280;
+          --color-gray-600: #4b5563;
+          --color-gray-700: #374151;
+          --color-gray-800: #1f2937;
+          --color-gray-900: #111827;
+          
+          /* Spacing system */
+          --space-1: 0.5rem;
+          --space-2: 1rem;
+          --space-3: 1.5rem;
+          --space-4: 1rem;
+          --space-5: 2.5rem;
+          --space-6: 3rem;
+          
+          /* Border radius */
+          --radius-sm: 0.25rem;
+          --radius-md: 0.5rem;
+          --radius-lg: 1rem;
+          
+          /* Animation */
+          --transition-fast: 150ms ease;
+          --transition-normal: 250ms ease;
+          --transition-slow: 350ms ease;
+        }
+        
+        .catalog-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-2);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Header styles */
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--color-gray-900);
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-1) var(--space-2);
+            padding-right: 3.5rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 9999px;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .search-input:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-button {
+            position: absolute;
+            right: var(--space-1);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-500);
+            transition: color var(--transition-fast);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            color: var(--color-accent);
+        }
+
+        /* General Viewer button */
+        .general-viewer {
+            margin-bottom: var(--space-4);
+        }
+
+        .general-viewer-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: var(--space-2);
+            background-color: var(--color-primary);
+            color: var(--color-secondary);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: background-color var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .general-viewer-button:hover {
+            background-color: var(--color-gray-800);
+            color: var(--color-secondary);
+        }
+
+        .general-viewer-button svg {
+            transition: transform var(--transition-normal);
+        }
+
+        .general-viewer-button:hover svg {
+            transform: translate(4px, -4px);
+        }
+
+        /* Catalog Items */
+        .catalog-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .catalog-item {
+            display: grid;
+            grid-template-columns: auto 1fr repeat(3, auto);
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-2);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            background-color: #ffffff;
+        }
+
+        .catalog-image {
+            margin: 0;
+        }
+
+        .image-placeholder {
+            width: 120px;
+            height: 170px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-500);
+            font-size: 0.875rem;
+            background-color: var(--color-gray-100);
+            overflow: hidden;
+        }
+        
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .catalog-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            margin: 0;
+        }
+
+        .catalog-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-2);
+            color: var(--color-gray-700);
+            font-weight: 500;
+            transition: color var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .action-button:hover {
+            color: var(--color-accent);
+        }
+
+        .action-button svg {
+            transition: transform var(--transition-normal);
+        }
+
+        .download-button:hover svg {
+            transform: translateY(2px);
+        }
+
+        .view-button:hover svg {
+            transform: scale(1.1);
+        }
+
+        .send-button:hover svg {
+            transform: translate(2px, -2px);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .catalog-item {
+                grid-template-columns: auto 1fr auto;
+            }
+            .action-button span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .catalog-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-2);
+            }
+            .search-container {
+                width: 100%;
+            }
+            .catalog-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: var(--space-2);
+                padding: var(--space-2);
+            }
+            .catalog-actions {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                width: 100%;
+                gap: var(--space-2);
+            }
+            .action-button {
+                justify-content: center;
+                padding: var(--space-2);
+            }
+            .action-button span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 1.5rem;
+            }
+            .catalog-title {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* Estilos para el modal de compartir */
+        .share-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        }
+
+        .share-modal-content {
+        background-color: white;
+        border-radius: 16px;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        position: relative;
+        border: 1px solid #e5e7eb;
+        }
+
+    .share-modal-close {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 40px;
+        height: 40px;
+        background-color: black;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+        user-select: none;  /* Evitar selección de texto */
+        z-index: 1010;      /* Asegurar que esté por encima */
+    }
+
+        .share-modal h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+        }
+
+        .share-modal-button {
+        background-color: black;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 15px 0;
+        font-size: 1.5rem;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        }
+
+        .share-modal-button:hover {
+        background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Header placeholder -->
+        <div id="headerContainer"></div>
+
+        <!-- Sidebar placeholder -->
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="catalog-container">
+                <header class="catalog-header">
+                    <h1 class="header-title">Nuestros Catálogos</h1>
+                    <div class="search-container">
+                        <input type="text" id="catalog-search-input" class="search-input" placeholder="Buscar catálogos...">
+                        <button class="search-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </header>
+
+                <section class="general-viewer">
+                    <a href="javascript:void(0);" onclick="shareGeneralCatalog()" class="general-viewer-button">
+                        <span>Visualizador General de catálogos</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </a>
+                </section>
+
+                <section class="catalog-list" id="catalog-list">
+                    <!-- Catalog items will be loaded dynamically -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando catálogos...</p>
+                    </div>
+                </section>
+            </div>
+                        <!-- Modal para compartir PDF -->
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Standard App Scripts -->
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authCheck.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logoutHandler.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Cargamos los catálogos disponibles
+            try {
+                const response = await fetch(`${AppConfig.getFullPath('/pdf_reader')}/listar-pdfs-procesados`);
+                if (response.ok) {
+                    const catalogs = await response.json();
+                    renderCatalogs(catalogs);
+                    setupSearch();
+                } else {
+                    console.error('Error al cargar los catálogos');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        function renderCatalogs(catalogs) {
+            const mainContent = document.querySelector('.main-content');
+            
+            // 1. Creamos el HTML para el encabezado y el buscador
+            let contentHtml = `
+                <div class="catalog-container">
+                    <header class="header">
+                        <h1 class="header-title">Nuestros Catálogos</h1>
+                        <div class="search-container">
+                            <input type="text" class="search-input" id="catalog-search" placeholder="Buscar catálogos...">
+                            <button class="search-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </header>                    <!-- 2. Sección del visualizador general -->
+                    <section class="general-viewer">
+                        <a href="javascript:void(0);" onclick="shareGeneralCatalog()" class="general-viewer-button">
+                            <span>Visualizador General de catálogos</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </a>
+                    </section>
+
+                    <!-- 3. Lista de catálogos -->
+                    <main class="catalog-list">
+            `;
+            
+            // Si no hay catálogos disponibles
+            if (!catalogs || catalogs.length === 0) {
+                contentHtml += `
+                        <div class="text-center py-4">
+                            <p>No hay catálogos disponibles.</p>
+                        </div>
+                    </main>
+                </div>`;
+                
+                mainContent.innerHTML = contentHtml;
+                return;
+            }
+            
+            // 4. Generamos cada elemento de catálogo
+            catalogs.forEach(catalog => {
+                const catalogName = catalog.name;
+                const catalogNameDisplay = catalogName.replace(/_/g, ' ').replace(/.pdf$/, '');
+                const baseUrl = window.location.pathname.includes('/grupokossodo_ssh') ? 
+                            '/grupokossodo_ssh/pdf_reader' : '/pdf_reader';
+                
+                contentHtml += `
+                        <div class="catalog-item" data-name="${catalogName.toLowerCase()}">
+                            <div class="catalog-image">
+                                <div class="image-placeholder">
+                                    <img src="${baseUrl}/pdf/${catalogName}/thumb_1.webp" 
+                                        alt="${catalogNameDisplay}" 
+                                        onload="console.log('✅ Miniatura cargada: thumb_1.webp')" 
+                                        onerror="
+                                            this.onerror=null;
+                                            console.log('⚠️ Intentando cargar page_1.webp como alternativa');
+                                            this.src='${baseUrl}/pdf/${catalogName}/page_1.webp';
+                                            this.onerror=function(){
+                                                console.error('❌ No se pudo cargar ninguna imagen');
+                                                this.style.display='none';
+                                                this.parentNode.innerHTML += '<svg class=\\'pdf-icon\\' xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\'><path fill=\\'#e74c3c\\' d=\\'M12,2H6V22H18V8L12,2Z M12,4L16,8H12V4Z M9,10H15V12H9V10Z M9,14H15V16H9V14Z M9,18H13V20H9V18Z\\'/></svg>';
+                                            }
+                                        ">
+                                </div>
+                            </div>
+                            <h2 class="catalog-title">${catalogNameDisplay}</h2>
+                            
+                            <!-- Botones de acción en el orden específico: Descargar, Ver, Enviar -->
+                            <div class="catalog-actions">
+                                <!-- Botón Descargar -->
+                                <a href="${baseUrl}/pdf/${catalogName}/${catalogName}.pdf" download="${catalogNameDisplay}.pdf" class="action-button download-button">
+                                    <span>Download PDF</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                                
+                                <!-- Botón Ver -->
+                                <a href="${baseUrl}/view?pdf=${encodeURIComponent(catalogName)}" class="action-button view-button">
+                                    <span>Ver PDF</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </a>
+                                
+                                <!-- Botón Enviar -->
+                                <a href="javascript:void(0);" onclick="shareCatalog('${catalogName}')" class="action-button send-button">
+                                    <span>Enviar PDF</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                `;
+            });
+            
+            // 5. Cerramos las etiquetas HTML
+            contentHtml += `
+                    </main>
+                </div>
+            `;
+            
+            // 6. Insertamos todo el contenido en la página
+            mainContent.innerHTML = contentHtml;
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('catalog-search');
+            if (!searchInput) return;
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const catalogItems = document.querySelectorAll('.catalog-item');
+                
+                catalogItems.forEach(item => {
+                    const itemName = item.getAttribute('data-name');
+                    if (itemName.includes(searchTerm)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+function shareCatalog(catalogName) {
+    // URL del servidor específico que me has proporcionado
+    const shareUrl = `http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/view?pdf=${encodeURIComponent(catalogName)}`;
+    
+    // Guardar la URL en una variable global para que el botón "Click Aqui" pueda acceder a ella
+    window.currentShareUrl = shareUrl;
+    
+    console.log('URL compartida configurada:', shareUrl);
+    
+    // Mostrar el modal
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        console.error('Modal no encontrado');
+    }
+}    // Configurar eventos para el modal cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Crear modal dinámicamente
+        const modalHTML = `
+            <div id="shareModal" class="share-modal" style="display: none;">
+                <div class="share-modal-content">
+                    <div class="share-modal-close">&times;</div>
+                    <h2>Copiar link de pdf</h2>
+                    <button id="copyLinkBtn" class="share-modal-button">Click Aqui</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Configurar eventos del modal existente en el HTML
+        configureModalEvents();
+    });    function configureModalEvents() {
+        const modal = document.getElementById('shareModal');
+        if (!modal) {
+            console.error('Modal no encontrado en el DOM');
+            return;
+        }
+        
+        const closeBtn = modal.querySelector('.share-modal-close');
+        const copyBtn = document.getElementById('copyLinkBtn');
+        
+        // Botón X para cerrar
+        if (closeBtn) {
+            // Eliminamos eventos previos para evitar duplicación
+            closeBtn.replaceWith(closeBtn.cloneNode(true));
+            const newCloseBtn = modal.querySelector('.share-modal-close');
+            newCloseBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                console.log('Modal cerrado por botón X');
+            });
+        } else {
+            console.error('Botón de cerrar no encontrado');
+        }
+        
+        // Cerrar al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                console.log('Modal cerrado por clic fuera');
+            }
+        };
+        
+        // Copiar enlace
+        if (copyBtn) {
+            // Eliminamos eventos previos para evitar duplicación
+            copyBtn.replaceWith(copyBtn.cloneNode(true));
+            const newCopyBtn = document.getElementById('copyLinkBtn');
+            
+            newCopyBtn.addEventListener('click', function() {
+                if (!window.currentShareUrl) {
+                    console.error('URL no disponible para copiar');
+                    return;
+                }
+                
+                console.log('Intentando copiar:', window.currentShareUrl);
+                
+                // Crear un elemento de texto temporal para la copia
+                const textarea = document.createElement('textarea');
+                textarea.value = window.currentShareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';  // Fuera de la vista
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        newCopyBtn.textContent = "¡Enlace copiado!";
+                        setTimeout(() => {
+                            newCopyBtn.textContent = "Click Aqui";
+                            modal.style.display = 'none';
+                        }, 1500);
+                    } else {
+                        // Fallback a navigator.clipboard si execCommand falla
+                        tryClipboardAPI();
+                    }
+                } catch (err) {
+                    console.error('Error con execCommand:', err);
+                    // Fallback a navigator.clipboard si execCommand no está disponible
+                    tryClipboardAPI();
+                }
+                
+                // Limpiar el textarea temporal
+                document.body.removeChild(textarea);
+                
+                function tryClipboardAPI() {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(window.currentShareUrl)
+                            .then(() => {
+                                newCopyBtn.textContent = "¡Enlace copiado!";
+                                setTimeout(() => {
+                                    newCopyBtn.textContent = "Click Aqui";
+                                    modal.style.display = 'none';
+                                }, 1500);
+                            })
+                            .catch(err => {
+                                console.error('Error con Clipboard API:', err);
+                                newCopyBtn.textContent = "Error al copiar";
+                            });
+                    } else {
+                        console.error('Clipboard API no disponible');
+                        newCopyBtn.textContent = "Error al copiar";
+                    }
+                }
+            });        } else {
+            console.error('Botón de copiar no encontrado');
+        }
+    }
+
+function shareGeneralCatalog() {
+    // URL del visualizador general de catálogos
+    const shareUrl = "http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/catalogo";
+    
+    // Guardar la URL en una variable global para que el botón "Click Aqui" pueda acceder a ella
+    window.currentShareUrl = shareUrl;
+    
+    console.log('URL del visualizador general configurada:', shareUrl);
+    
+    // Mostrar el modal
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        console.error('Modal no encontrado');
+    }
+}
+</script>
+</body>
+</html>

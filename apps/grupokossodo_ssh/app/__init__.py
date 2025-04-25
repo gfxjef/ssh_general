@@ -30,14 +30,15 @@ def create_app(config_name=None):
     from .blueprints.inventory import get_blueprint as get_inventory_bp
     from .blueprints.bienestar import get_blueprint as get_bienestar_bp
     from .blueprints.bienestar import get_api_blueprint as get_bienestar_api_bp
-
+    from .blueprints.pdf_reader import get_blueprint as get_pdf_reader_bp  # Nuevo blueprint
     
     app.register_blueprint(get_login_bp(), url_prefix='/api')
     app.register_blueprint(get_welcome_bp(), url_prefix='/api')
     app.register_blueprint(get_records_bp())
     app.register_blueprint(get_inventory_bp(), url_prefix='/api')
     app.register_blueprint(get_bienestar_bp(), url_prefix='/bienestar')
-    app.register_blueprint(get_bienestar_api_bp(), url_prefix='/api')  # API endpoints under /api
+    app.register_blueprint(get_bienestar_api_bp(), url_prefix='/api')
+    app.register_blueprint(get_pdf_reader_bp())  # Registrar el blueprint
 
     # Add context processor for base_url
     @app.context_processor

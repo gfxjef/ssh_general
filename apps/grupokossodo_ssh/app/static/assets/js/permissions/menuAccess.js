@@ -18,11 +18,15 @@ class MenuAccessManager {
                 // Submenús de Marketing
                 'Marketing/Inventario': ['admin', 'gerente', 'almacen','marketing'],
                 'Marketing/Merchandising': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
+                'Marketing/Catalogos': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing'],
                 
                 // Submenús específicos de Marketing/Merchandising
                 'Marketing/Merchandising/Solicitud de Merchandising': ['admin', 'gerente', 'vendedor','asesor','marketing'],
                 'Marketing/Merchandising/Confirmación Solicitudes': ['admin', 'gerente', 'almacen','marketing'],
                 'Marketing/Merchandising/Historial Confirmaciones': ['admin', 'gerente','marketing'],
+                
+                // Submenús específicos de Marketing/Catalogos
+                'Marketing/Catalogos/Total': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing'],
                 
                 // Submenús de Ventas
                 'Ventas/Encuestas': ['admin', 'gerente','atencion'],

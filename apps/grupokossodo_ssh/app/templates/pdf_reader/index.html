@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogos Kossodo 2025</title>
+  <!-- Enlaza el archivo de estilos -->
+  <link rel="stylesheet" href="{{ url_for('pdf_reader.static', filename='css/styles.css') }}">
+
+  <!-- Incluir PDF.js desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <!-- Incluir jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Incluir Turn.js versión 0.11 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/0.11/turn.min.js"></script>
+  
+  <script>
+    // Configura el worker de PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    
+    // Función para obtener parámetros de URL
+    function getURLParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+    
+    // Guardar el PDF seleccionado como variable global
+    let selectedPDF = "{{ pdf_url|default('') }}" || getURLParameter('pdf');
+    
+    // Verificar si el PDF está definido y si tiene la ruta correcta
+    if (!selectedPDF) {
+      // Si no hay parámetro, usar un PDF por defecto pero con la ruta correcta
+      selectedPDF = 'pdf/Catálogo de Industria Farmaceutica - Kossodo 2025/Catálogo de Industria Farmaceutica - Kossodo 2025.pdf';
+    } else if (!selectedPDF.startsWith('pdf/')) {
+      // Si la ruta no comienza con 'pdf/' (sin 's'), añadirla
+      if (!selectedPDF.includes('/')) {
+        const baseName = selectedPDF.replace('.pdf', '');
+        selectedPDF = `pdf/${baseName}/${selectedPDF}`;
+      }
+    }
+    
+    console.log("PDF seleccionado:", selectedPDF);
+    
+    // Extraer el nombre base del PDF para búsqueda de imágenes
+    const pdfBaseName = selectedPDF.split('/').pop().replace('.pdf', '');
+    
+    // Detección de dispositivo
+    function detectarDispositivo() {
+      const ancho = window.innerWidth;
+      if (ancho < 768) {
+        return 'mobile';
+      } else if (ancho < 1024) {
+        return 'tablet';
+      } else {
+        return 'desktop';
+      }
+    }
+    
+    // Cargar el script correspondiente según el dispositivo
+    function cargarScript() {
+      const dispositivo = detectarDispositivo();
+      const script = document.createElement('script');
+      script.src = 'js/' + dispositivo + '.js';
+      document.body.appendChild(script);
+      console.log('Cargado script para: ' + dispositivo);
+    }
+    
+    // Variable para controlar redimensionamiento
+    let tiempoEspera;
+    let dispositivoActual = detectarDispositivo();
+    
+    // Cuando el documento esté listo
+    $(document).ready(function() {
+      // Cargar el script específico para el dispositivo
+      cargarScript();
+      
+      // Configurar eventos de botones
+      
+      // Volver al catálogo
+      document.getElementById('back-catalog').addEventListener('click', function() {
+        window.location.href = "{{ url_for('pdf_reader.catalogo') }}";
+      });
+      
+      // Botón de descarga PDF
+      document.getElementById('download-pdf').addEventListener('click', async function() {
+        // Obtener el nombre del PDF actual
+        const pdfName = selectedPDF.split('/').pop();
+        const pdfBaseName = pdfName.replace('.pdf', '');
+        
+        // Intentar encontrar el PDF en la ruta correcta
+        let pdfPath = '';
+        
+        // Si selectedPDF ya tiene la estructura correcta, usarla directamente
+        if (selectedPDF.startsWith('pdf/') && selectedPDF.split('/').length >= 3) {
+          pdfPath = selectedPDF;
+        } else {
+          // Construir la ruta correcta basada en el nombre base
+          // Asegurar que la extensión .pdf esté presente
+          const pdfFileName = pdfBaseName.endsWith('.pdf') ? pdfBaseName : `${pdfBaseName}.pdf`;
+          pdfPath = `pdf/${pdfBaseName}/${pdfFileName}`;
+        }
+        
+        // Asegurarse de que la ruta termine con .pdf
+        if (!pdfPath.endsWith('.pdf')) {
+          pdfPath += '.pdf';
+        }
+        
+        console.log(`Intentando descargar PDF desde: ${pdfPath}`);
+        
+        try {
+          // Verificar si el archivo existe en la ruta
+          const response = await fetch(pdfPath, { method: 'HEAD' });
+          
+          if (!response.ok) {
+            throw new Error(`No se encontró el archivo en ${pdfPath}`);
+          }
+          
+          // Descargar el archivo
+          const blob = await (await fetch(pdfPath)).blob();
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Crear enlace de descarga
+          const downloadLink = document.createElement('a');
+          downloadLink.href = blobUrl;
+          // Asegurar que el nombre de descarga termine con .pdf
+          const downloadName = pdfName.endsWith('.pdf') ? pdfName : `${pdfName}.pdf`;
+          downloadLink.download = downloadName;
+          
+          // Forzar la descarga
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          
+          // Limpieza
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(downloadLink);
+          }, 100);
+        } catch (error) {
+          console.error('Error al descargar el PDF:', error);
+          alert('No se pudo descargar el PDF. Verifica la ruta: ' + pdfPath);
+        }
+      });
+    });
+    
+    // Recargar si cambia el tamaño de ventana significativamente
+    window.addEventListener('resize', function() {
+      clearTimeout(tiempoEspera);
+      tiempoEspera = setTimeout(function() {
+        const nuevoDispositivo = detectarDispositivo();
+        if (nuevoDispositivo !== dispositivoActual) {
+          console.log('Cambio de dispositivo detectado, recargando...');
+          location.reload();
+        }
+      }, 500);
+    });
+  </script>
+</head>
+<body>
+  <!-- Loader: se mostrará mientras se carga el PDF y se inicializa el flipbook -->
+  <div id="loader-overlay">
+    <div class="spinner"></div>
+  </div>
+  
+  <!-- Wrapper para centrar y posicionar el flipbook -->
+  <div id="flipbook-wrapper">
+    <div id="flipbook"></div>
+  </div>
+  
+  <!-- Botones de navegación simplificados -->
+  <div id="navigation">
+    <button id="back-catalog" class="nav-btn" title="Volver al catálogo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"></path>
+        <path fill="currentColor" d="M7,7H15V9H7V7M7,11H15V13H7V11M7,15H11V17H7V15Z"></path>
+      </svg>
+    </button>
+    <button id="first-page" class="nav-btn" title="Primera página">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M18.41,7.41L17,6L11,12L17,18L18.41,16.59L13.83,12L18.41,7.41M12.41,7.41L11,6L5,12L11,18L12.41,16.59L7.83,12L12.41,7.41Z"></path>
+      </svg>
+    </button>
+    <button id="prev-page" class="nav-btn" title="Página anterior">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"></path>
+      </svg>
+    </button>
+    <button id="next-page" class="nav-btn" title="Página siguiente">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
+      </svg>
+    </button>
+    <!-- Nuevo botón de descarga -->
+    <button id="download-pdf" class="nav-btn" title="Descargar PDF">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"></path>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Enlaza el loader.js -->
+  <script src="{{ url_for('pdf_reader.static', filename='js/loader.js') }}"></script>
+
+  <script src="{{ url_for('pdf_reader.static', filename='js/desktop.js') }}"></script>
+</body>
+</html>
