@@ -115,13 +115,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
             const tagsContainer = postContent.querySelector('.post-tags');
             
-            post.tags.forEach(tag => {
-                const tagElement = document.createElement('a');
-                tagElement.href = `/view-posts?tag=${tag}`;
-                tagElement.className = 'tag';
-                tagElement.textContent = tag;
-                tagsContainer.appendChild(tagElement);
-            });
+                post.tags.forEach(tag => {
+                    const tagElement = document.createElement('a');
+                    tagElement.href = AppConfig.getFullPath(`/bienestar/view-posts`) + `?tag=${tag}`;
+                    tagElement.className = 'tag';
+                    tagElement.textContent = tag;
+                    tagsContainer.appendChild(tagElement);
+                });
         }
         
         // Reemplazar el contenedor de carga con el contenido del post
