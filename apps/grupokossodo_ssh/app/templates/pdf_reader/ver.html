@@ -198,9 +198,26 @@
 
         .catalog-actions {
             display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            width: 100%;
+        }
+
+
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
             gap: var(--space-2);
         }
 
+        .top-actions, .bottom-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+        }
+
+
+        
         .action-button {
             display: flex;
             align-items: center;
@@ -251,6 +268,11 @@
             .search-container {
                 width: 100%;
             }
+
+                .actions-row {
+                flex-direction: column;
+            }
+
             .catalog-item {
                 display: flex;
                 flex-direction: column;
@@ -282,70 +304,6 @@
             }
         }
 
-        /* Estilos para el modal de compartir */
-        .share-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        }
-
-        .share-modal-content {
-        background-color: white;
-        border-radius: 16px;
-        padding: 30px;
-        width: 90%;
-        max-width: 500px;
-        text-align: center;
-        position: relative;
-        border: 1px solid #e5e7eb;
-        }
-
-    .share-modal-close {
-        position: absolute;
-        top: -20px;
-        right: -20px;
-        width: 40px;
-        height: 40px;
-        background-color: black;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        cursor: pointer;
-        line-height: 1;
-        user-select: none;  /* Evitar selección de texto */
-        z-index: 1010;      /* Asegurar que esté por encima */
-    }
-
-        .share-modal h2 {
-        font-size: 2rem;
-        margin-bottom: 30px;
-        }
-
-        .share-modal-button {
-        background-color: black;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 15px 0;
-        font-size: 1.5rem;
-        width: 100%;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        }
-
-        .share-modal-button:hover {
-        background-color: #333;
-        }
     </style>
 </head>
 <body>
@@ -482,57 +440,84 @@
                 
                 contentHtml += `
                         <div class="catalog-item" data-name="${catalogName.toLowerCase()}">
-                            <div class="catalog-image">
-                                <div class="image-placeholder">
-                                    <img src="${baseUrl}/pdf/${catalogName}/thumb_1.webp" 
-                                        alt="${catalogNameDisplay}" 
-                                        onload="console.log('✅ Miniatura cargada: thumb_1.webp')" 
-                                        onerror="
-                                            this.onerror=null;
-                                            console.log('⚠️ Intentando cargar page_1.webp como alternativa');
-                                            this.src='${baseUrl}/pdf/${catalogName}/page_1.webp';
-                                            this.onerror=function(){
-                                                console.error('❌ No se pudo cargar ninguna imagen');
-                                                this.style.display='none';
-                                                this.parentNode.innerHTML += '<svg class=\\'pdf-icon\\' xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\'><path fill=\\'#e74c3c\\' d=\\'M12,2H6V22H18V8L12,2Z M12,4L16,8H12V4Z M9,10H15V12H9V10Z M9,14H15V16H9V14Z M9,18H13V20H9V18Z\\'/></svg>';
-                                            }
-                                        ">
-                                </div>
-                            </div>
-                            <h2 class="catalog-title">${catalogNameDisplay}</h2>
-                            
-                            <!-- Botones de acción en el orden específico: Descargar, Ver, Enviar -->
-                            <div class="catalog-actions">
-                                <!-- Botón Descargar -->
-                                <a href="${baseUrl}/pdf/${catalogName}/${catalogName}.pdf" download="${catalogNameDisplay}.pdf" class="action-button download-button">
-                                    <span>Download PDF</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
-                                </a>
-                                
-                                <!-- Botón Ver -->
-                                <a href="${baseUrl}/view?pdf=${encodeURIComponent(catalogName)}" class="action-button view-button">
-                                    <span>Ver PDF</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </a>
-                                
-                                <!-- Botón Enviar -->
-                                <a href="javascript:void(0);" onclick="shareCatalog('${catalogName}')" class="action-button send-button">
-                                    <span>Enviar PDF</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                    </svg>
-                                </a>
-                            </div>
+                    <div class="catalog-image">
+                        <div class="image-placeholder">
+                            <img src="${baseUrl}/pdf/${catalogName}/thumb_1.webp" 
+                                alt="${catalogNameDisplay}" 
+                                onload="console.log('✅ Miniatura cargada: thumb_1.webp')" 
+                                onerror="
+                                    this.onerror=null;
+                                    console.log('⚠️ Intentando cargar page_1.webp como alternativa');
+                                    this.src='${baseUrl}/pdf/${catalogName}/page_1.webp';
+                                    this.onerror=function(){
+                                        console.error('❌ No se pudo cargar ninguna imagen');
+                                        this.style.display='none';
+                                        this.parentNode.innerHTML += '<svg class=\\'pdf-icon\\' xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\'><path fill=\\'#e74c3c\\' d=\\'M12,2H6V22H18V8L12,2Z M12,4L16,8H12V4Z M9,10H15V12H9V10Z M9,14H15V16H9V14Z M9,18H13V20H9V18Z\\'/></svg>';
+                                    }
+                                ">
                         </div>
-                `;
+                    </div>
+                    <h2 class="catalog-title">${catalogNameDisplay}</h2>
+                    
+                    <!-- Botones de acción organizados en dos filas: 3 arriba y 3 abajo -->
+                    <div class="catalog-actions">
+                        <div class="actions-row top-actions">
+                            <!-- FILA 1: Descargar, Ver, Enviar -->
+                            <a href="${baseUrl}/pdf/${catalogName}/${catalogName}.pdf" download="${catalogNameDisplay}.pdf" class="action-button download-button" >
+                                <span>Download PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </a>
+                            
+                            <a href="${baseUrl}/view?pdf=${encodeURIComponent(catalogName)}" class="action-button view-button" >
+                                <span>Ver PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
+                            
+                            <a href="javascript:void(0);" onclick="shareCatalog('${catalogName}')" class="action-button send-button" >
+                                <span>Enviar PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </a>
+                        </div>
+                        
+                        <div class="actions-row bottom-actions">
+                            <!-- FILA 2: Eliminar, Actualizar, Reportar -->
+                            <a href="javascript:void(0);" onclick="deletePDF('${catalogName}')" class="action-button delete-button" data-permission-id="delete-pdf">
+                                <span>Eliminar PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </a>
+                            
+                            <a href="javascript:void(0);" onclick="updatePDF('${catalogName}')" class="action-button update-button" data-permission-id="update-pdf">
+                                <span>Actualizar PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"></path>
+                                </svg>
+                            </a>
+                            
+                            <a href="javascript:void(0);" onclick="reportPDF('${catalogName}')" class="action-button report-button" >
+                                <span>Reportar PDF</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        `;
             });
             
             // 5. Cerramos las etiquetas HTML
@@ -565,152 +550,221 @@
         }
 
 function shareCatalog(catalogName) {
-    // URL del servidor específico que me has proporcionado
+    // URL del servidor específico
     const shareUrl = `http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/view?pdf=${encodeURIComponent(catalogName)}`;
     
-    // Guardar la URL en una variable global para que el botón "Click Aqui" pueda acceder a ella
-    window.currentShareUrl = shareUrl;
+    // Encontrar el botón que activó esta función
+    const button = event.currentTarget;
+    const buttonSpan = button.querySelector('span');
+    const buttonSvg = button.querySelector('svg');
+    const originalText = buttonSpan.textContent;
+    const originalSvg = buttonSvg.outerHTML;
     
-    console.log('URL compartida configurada:', shareUrl);
+    // Guardar estado original
+    const originalContent = {
+        text: originalText,
+        svg: originalSvg
+    };
     
-    // Mostrar el modal
-    const modal = document.getElementById('shareModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    } else {
-        console.error('Modal no encontrado');
-    }
-}    // Configurar eventos para el modal cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        // Crear modal dinámicamente
-        const modalHTML = `
-            <div id="shareModal" class="share-modal" style="display: none;">
-                <div class="share-modal-content">
-                    <div class="share-modal-close">&times;</div>
-                    <h2>Copiar link de pdf</h2>
-                    <button id="copyLinkBtn" class="share-modal-button">Click Aqui</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Configurar eventos del modal existente en el HTML
-        configureModalEvents();
-    });    function configureModalEvents() {
-        const modal = document.getElementById('shareModal');
-        if (!modal) {
-            console.error('Modal no encontrado en el DOM');
-            return;
-        }
-        
-        const closeBtn = modal.querySelector('.share-modal-close');
-        const copyBtn = document.getElementById('copyLinkBtn');
-        
-        // Botón X para cerrar
-        if (closeBtn) {
-            // Eliminamos eventos previos para evitar duplicación
-            closeBtn.replaceWith(closeBtn.cloneNode(true));
-            const newCloseBtn = modal.querySelector('.share-modal-close');
-            newCloseBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-                console.log('Modal cerrado por botón X');
-            });
-        } else {
-            console.error('Botón de cerrar no encontrado');
-        }
-        
-        // Cerrar al hacer clic fuera
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-                console.log('Modal cerrado por clic fuera');
-            }
-        };
-        
-        // Copiar enlace
-        if (copyBtn) {
-            // Eliminamos eventos previos para evitar duplicación
-            copyBtn.replaceWith(copyBtn.cloneNode(true));
-            const newCopyBtn = document.getElementById('copyLinkBtn');
+    // Intentar copiar el enlace al portapapeles
+    navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+            // Cambiar el texto e icono del botón
+            buttonSpan.textContent = "Link Copiado";
+            buttonSvg.outerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            `;
             
-            newCopyBtn.addEventListener('click', function() {
-                if (!window.currentShareUrl) {
-                    console.error('URL no disponible para copiar');
-                    return;
-                }
-                
-                console.log('Intentando copiar:', window.currentShareUrl);
-                
-                // Crear un elemento de texto temporal para la copia
+            // Restaurar el texto e icono original después de 2 segundos
+            setTimeout(() => {
+                buttonSpan.textContent = originalContent.text;
+                button.querySelector('svg').outerHTML = originalContent.svg;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Error al copiar enlace:', err);
+            // Intentar con el método alternativo si la API Clipboard falla
+            try {
                 const textarea = document.createElement('textarea');
-                textarea.value = window.currentShareUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-9999px';  // Fuera de la vista
+                textarea.value = shareUrl;
                 document.body.appendChild(textarea);
-                textarea.focus();
                 textarea.select();
-                
-                try {
-                    const successful = document.execCommand('copy');
-                    if (successful) {
-                        newCopyBtn.textContent = "¡Enlace copiado!";
-                        setTimeout(() => {
-                            newCopyBtn.textContent = "Click Aqui";
-                            modal.style.display = 'none';
-                        }, 1500);
-                    } else {
-                        // Fallback a navigator.clipboard si execCommand falla
-                        tryClipboardAPI();
-                    }
-                } catch (err) {
-                    console.error('Error con execCommand:', err);
-                    // Fallback a navigator.clipboard si execCommand no está disponible
-                    tryClipboardAPI();
-                }
-                
-                // Limpiar el textarea temporal
+                document.execCommand('copy');
                 document.body.removeChild(textarea);
                 
-                function tryClipboardAPI() {
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(window.currentShareUrl)
-                            .then(() => {
-                                newCopyBtn.textContent = "¡Enlace copiado!";
-                                setTimeout(() => {
-                                    newCopyBtn.textContent = "Click Aqui";
-                                    modal.style.display = 'none';
-                                }, 1500);
-                            })
-                            .catch(err => {
-                                console.error('Error con Clipboard API:', err);
-                                newCopyBtn.textContent = "Error al copiar";
-                            });
-                    } else {
-                        console.error('Clipboard API no disponible');
-                        newCopyBtn.textContent = "Error al copiar";
-                    }
-                }
-            });        } else {
-            console.error('Botón de copiar no encontrado');
-        }
+                // Cambiar el texto e icono del botón
+                buttonSpan.textContent = "Link Copiado";
+                buttonSvg.outerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                `;
+                
+                // Restaurar el texto e icono original después de 2 segundos
+                setTimeout(() => {
+                    buttonSpan.textContent = originalContent.text;
+                    button.querySelector('svg').outerHTML = originalContent.svg;
+                }, 2000);
+            } catch (e) {
+                console.error('Error con el método alternativo:', e);
+                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
+            }
+        });
+}
+
+// Actualizar la función para compartir el catálogo general con la misma lógica
+function shareGeneralCatalog() {
+    // URL del visualizador general de catálogos
+    const shareUrl = "http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/catalogo";
+    
+    // Encontrar el botón que activó esta función
+    const button = event.currentTarget;
+    const buttonSpan = button.querySelector('span');
+    const buttonSvg = button.querySelector('svg');
+    const originalText = buttonSpan.textContent;
+    const originalSvg = buttonSvg.outerHTML;
+    
+    // Guardar estado original
+    const originalContent = {
+        text: originalText,
+        svg: originalSvg
+    };
+    
+    // Intentar copiar el enlace al portapapeles
+    navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+            // Cambiar el texto e icono del botón
+            buttonSpan.textContent = "Link Copiado";
+            buttonSvg.outerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            `;
+            
+            // Restaurar el texto e icono original después de 2 segundos
+            setTimeout(() => {
+                buttonSpan.textContent = originalContent.text;
+                button.querySelector('svg').outerHTML = originalContent.svg;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Error al copiar enlace:', err);
+            // Intentar con el método alternativo si la API Clipboard falla
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // Cambiar el texto e icono del botón
+                buttonSpan.textContent = "Link Copiado";
+                buttonSvg.outerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                `;
+                
+                // Restaurar el texto e icono original después de 2 segundos
+                setTimeout(() => {
+                    buttonSpan.textContent = originalContent.text;
+                    button.querySelector('svg').outerHTML = originalContent.svg;
+                }, 2000);
+            } catch (e) {
+                console.error('Error con el método alternativo:', e);
+                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
+            }
+        });
+}
+
+// Añadir estas funciones al final del bloque <script> existente
+
+function deletePDF(catalogName) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el PDF "${catalogName}"?`)) {
+        // Aquí iría la lógica para eliminar el PDF
+        alert(`Función para eliminar el PDF "${catalogName}" (por implementar)`);
+        // Una implementación real haría una solicitud al servidor para eliminar el archivo
     }
+}
+
+function updatePDF(catalogName) {
+    // Aquí iría la lógica para actualizar el PDF
+    alert(`Función para actualizar el PDF "${catalogName}" (por implementar)`);
+    // Una implementación real podría abrir un modal para cargar una nueva versión
+}
+
+function reportPDF(catalogName) {
+    // Aquí iría la lógica para reportar problemas con el PDF
+    alert(`Función para reportar problemas con el PDF "${catalogName}" (por implementar)`);
+    // Una implementación real podría abrir un formulario para reportar problemas
+}
 
 function shareGeneralCatalog() {
     // URL del visualizador general de catálogos
     const shareUrl = "http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/catalogo";
     
-    // Guardar la URL en una variable global para que el botón "Click Aqui" pueda acceder a ella
-    window.currentShareUrl = shareUrl;
+    // Encontrar el botón que activó esta función
+    const button = event.currentTarget;
+    const buttonSpan = button.querySelector('span');
+    const buttonSvg = button.querySelector('svg');
+    const originalText = buttonSpan.textContent;
+    const originalSvg = buttonSvg.outerHTML;
     
-    console.log('URL del visualizador general configurada:', shareUrl);
+    // Guardar estado original
+    const originalContent = {
+        text: originalText,
+        svg: originalSvg
+    };
     
-    // Mostrar el modal
-    const modal = document.getElementById('shareModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    } else {
-        console.error('Modal no encontrado');
-    }
+    // Intentar copiar el enlace al portapapeles
+    navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+            // Cambiar el texto e icono del botón
+            buttonSpan.textContent = "Link Copiado";
+            buttonSvg.outerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            `;
+            
+            // Restaurar el texto e icono original después de 2 segundos
+            setTimeout(() => {
+                buttonSpan.textContent = originalContent.text;
+                button.querySelector('svg').outerHTML = originalContent.svg;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Error al copiar enlace:', err);
+            // Intentar con el método alternativo si la API Clipboard falla
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // Cambiar el texto e icono del botón
+                buttonSpan.textContent = "Link Copiado";
+                buttonSvg.outerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                `;
+                
+                // Restaurar el texto e icono original después de 2 segundos
+                setTimeout(() => {
+                    buttonSpan.textContent = originalContent.text;
+                    button.querySelector('svg').outerHTML = originalContent.svg;
+                }, 2000);
+            } catch (e) {
+                console.error('Error con el método alternativo:', e);
+                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
+            }
+        });
 }
 </script>
 </body>

@@ -387,3 +387,15 @@ header {
 .header-row .hamburger-btn {
   margin-right: 0;
 }
+/* Añadir al bloque de estilos */
+[data-permission-id] {
+    visibility: hidden; /* Los elementos con permisos empiezan ocultos */
+    opacity: 0;
+    transition: visibility 0s, opacity 0.2s ease; /* Transición suave cuando aparecen */
+}
+
+/* Para elementos aprobados que se mostrarán */
+[data-permission-id].permission-granted {
+    visibility: visible;
+    opacity: 1;
+}

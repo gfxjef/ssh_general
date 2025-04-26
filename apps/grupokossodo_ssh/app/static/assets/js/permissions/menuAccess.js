@@ -1,13 +1,14 @@
 class MenuAccessManager {
     constructor() {
         this.permissions = {};
+        this.buttonPermissions = {}; // Nuevo objeto para permisos de botones
         this.userRole = null;
-        this.menuPaths = {};  // Almacenar rutas completas de menús
+        this.menuPaths = {};
     }
     
     async initialize() {
         try {
-            // Permisos jerárquicos usando notación de ruta
+            // Permisos jerárquicos usando notación de ruta (menús)
             this.permissions = {
                 // Menús principales
                 'Marketing': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
@@ -37,14 +38,17 @@ class MenuAccessManager {
                 'Bienestar de Talento/Administrar post\'s': ['admin', 'rrhh']
             };
             
+            // Permisos para botones específicos
+            this.buttonPermissions = {
+                'delete-pdf': ['admin', 'rrhh'],
+                'update-pdf': ['admin'],
+                // Agregar más botones según sea necesario
+            };
+            
             // Indexar la estructura del menú después de cargar la página
             this.indexMenuStructure();
-            
-            console.log('Permisos jerárquicos cargados');
-            return Promise.resolve();
         } catch (error) {
-            console.error('Error al cargar permisos:', error);
-            return Promise.reject(error);
+            console.error('Error al inicializar permisos:', error);
         }
     }
     
@@ -164,6 +168,41 @@ class MenuAccessManager {
         return false;
     }
     
+    // Método para verificar acceso a un botón específico
+    hasButtonAccess(buttonId) {
+        if (!this.userRole) return false;
+        
+        // Admin siempre tiene acceso completo
+        if (this.userRole.toLowerCase() === 'admin') return true;
+        
+        // Verificar permisos para este botón específico
+        const allowedRoles = this.buttonPermissions[buttonId] || [];
+        return allowedRoles.includes(this.userRole.toLowerCase());
+    }
+    
+    // Aplicar permisos a todos los botones marcados en la página
+    applyButtonPermissions() {
+        // Buscar todos los botones con el atributo data-permission-id
+        const permissionButtons = document.querySelectorAll('[data-permission-id]');
+        
+        console.log(`Aplicando permisos a ${permissionButtons.length} botones`);
+        
+        permissionButtons.forEach(button => {
+            const buttonId = button.getAttribute('data-permission-id');
+            if (buttonId) {
+                const hasAccess = this.hasButtonAccess(buttonId);
+                
+                if (hasAccess) {
+                    // CAMBIO CLAVE: Ahora AÑADIMOS la clase si tiene acceso
+                    button.classList.add('permission-granted');
+                } else {
+                    // Botones sin acceso permanecen ocultos (CSS por defecto)
+                    console.log(`Botón ${buttonId} permanece oculto para el rol ${this.userRole}`);
+                }
+            }
+        });
+    }
+    
     // Aplicar permisos a todos los niveles del menú
     applyMenuPermissions() {
         // Primero procesar elementos de nivel superior
@@ -186,6 +225,9 @@ class MenuAccessManager {
                 this.processMenuItemPermissions(item, menuText);
             }
         });
+        
+        // Además, aplicar permisos a los botones
+        this.applyButtonPermissions();
     }
     
     // Procesar permisos de un elemento de menú y sus hijos recursivamente
