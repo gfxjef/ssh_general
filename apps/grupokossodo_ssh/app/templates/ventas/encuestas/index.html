@@ -316,6 +316,150 @@
             font-style: italic;
             color: #6c757d;
         }
+
+        /* Nuevos estilos para el dashboard */
+        .filtros-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filtro-select {
+            flex: 1;
+            min-width: 150px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: #fff;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto auto;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dashboard-card h3 {
+            margin-top: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .chart-container {
+            flex-grow: 1;
+            position: relative;
+            min-height: 200px;
+        }
+        
+        /* Grid layout specifics */
+        .card-large {
+            grid-column: span 3;
+        }
+        
+        .card-small {
+            grid-column: span 1;
+        }
+        
+        .table-container {
+            margin-top: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .card-large {
+                grid-column: span 2;
+            }
+            
+            .card-small {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-large, .card-small {
+                grid-column: span 2;
+            }
+        }
+
+        .filtro-fecha-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .btn-filtro {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-filtro:hover {
+            background-color: #0069d9;
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-card {
+                padding: 8px;
+            }
+            .table-wrapper {
+                overflow-x: auto;
+            }
+                #tablaCalificaciones th, 
+            #tablaCalificaciones td,
+            .stat-table th,
+            .stat-table td {
+                white-space: nowrap;
+                font-size: 10px;
+                padding: 4px 2px;
+            }
+
+            .dashboard-card h3 {
+                font-size: 12px;
+                margin-bottom: 5px;
+                padding-bottom: 5px;
+            }
+            
+            .chart-container {
+                min-height: 150px;
+            }
+            
+            .stat-table {
+                font-size: 0.7rem;
+            }
+            
+            .stat-table th, .stat-table td {
+                padding: 4px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -331,114 +475,172 @@
                 <h1>Registro de Calificaciones</h1>
                 
                 <div id="mainContent">
-                    <div class="two-column-layout">
-                        <!-- Columna izquierda - Tabla existente -->
-                        <div class="column-left">
-                            <div class="table-wrapper">
-                                <table id="tablaCalificaciones">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Asesor</th>
-                                            <th>Nombres</th>
-                                            <th>Calificación</th>
-                                            <th>Tipo</th>
-                                            <th>+</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Se llenará dinámicamente -->
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Contenedor para el modal de detalles -->
-                            <div id="modalDetalles" class="modal" style="display: none;">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h3>Detalles de Calificación #<span id="modalIdCalificacion"></span></h3>
-                                        <span class="close-button" id="closeModalDetalles">&times;</span>
-                                    </div>
-                                    <div class="modal-body">
-                                        <!-- Información básica del registro -->
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <strong>Información</strong>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="info-grupo">
-                                                    <div class="info-etiqueta">RUC:</div>
-                                                    <div class="info-valor" id="detallesRuc"></div>
-                                                </div>
-                                                <div class="info-grupo">
-                                                    <div class="info-etiqueta">Documento:</div>
-                                                    <div class="info-valor" id="detallesDocumento"></div>
-                                                </div>
-                                                <div class="info-grupo">
-                                                    <div class="info-etiqueta">Fecha:</div>
-                                                    <div class="info-valor" id="detallesFecha"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <strong>Observaciones</strong>
-                                            </div>
-                                            <div class="card-body" id="detallesObservaciones">
-                                            </div>
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <strong>Promociones</strong>
-                                            </div>
-                                            <div class="card-body">
-                                                <div id="detallesPromociones"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" id="btnCerrarModalDetalles">Cerrar</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="mensaje" class="mensaje"></div>
-                        </div>
+                    <!-- Nuevos filtros -->
+                    <div class="filtros-container">
+                        <select class="filtro-select" id="filtro1">
+                            <option value="">Todos los asesores</option>
+                        </select>
+                        <select class="filtro-select" id="filtro2">
+                            <option value="">Todos los grupos</option>
+                        </select>
+                        <select class="filtro-select" id="filtro3">
+                            <option value="">Todas las calificaciones</option>
+                        </select>
                         
-                        <!-- Columna derecha - Estadísticas -->
-                        <div class="column-right">
-                            <h2>Estadísticas</h2>
+                        <!-- Nuevo filtro de fechas mejorado -->
+                        <div class="filtro-fecha-container">
+                            <select class="filtro-select" id="filtro4">
+                                <option value="">Todos los periodos</option>
+                                <option value="hoy">Hoy</option>
+                                <option value="ayer">Ayer</option>
+                                <option value="semana">Esta semana</option>
+                                <option value="mes">Este mes</option>
+                                <option value="mes-1">Último mes</option>
+                                <option value="mes-3">Últimos 3 meses</option>
+                                <option value="mes-6">Últimos 6 meses</option>
+                                <option value="año">Este año</option>
+                                <option value="personalizado">Rango personalizado</option>
+                            </select>
                             
-                            <!-- Percepción cliente - Ventas (OT) -->
-                            <div class="stat-card">
-                                <h3>Percepción del cliente - Ventas (OT)</h3>
-                                <div class="chart-container">
-                                    <canvas id="chartVentas"></canvas>
+                            <!-- Selector de rango de fechas personalizado -->
+                            <div id="rangoFechasContainer" style="display:none; margin-top:10px; flex-wrap:wrap;">
+                                <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
+                                    <div style="display:flex; flex-direction:column; flex:1; min-width:140px;">
+                                        <label for="fechaInicio" style="font-size:12px; margin-bottom:3px;">Fecha inicial:</label>
+                                        <input type="date" id="fechaInicio" class="filtro-select" style="min-width:140px;">
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; flex:1; min-width:140px;">
+                                        <label for="fechaFin" style="font-size:12px; margin-bottom:3px;">Fecha final:</label>
+                                        <input type="date" id="fechaFin" class="filtro-select" style="min-width:140px;">
+                                    </div>
+                                    <div style="display:flex; align-items:flex-end; margin-top:auto;">
+                                        <button id="aplicarFechas" class="btn-filtro">Aplicar</button>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Percepción cliente - Conformidad -->
-                            <div class="stat-card">
-                                <h3>Percepción del cliente - Conformidad</h3>
-                                <div class="chart-container">
-                                    <canvas id="chartConformidad"></canvas>
-                                </div>
-                            </div>
-                            
-                            <!-- Calificaciones por Asesor -->
-                            <div class="stat-card">
-                                <h3>Calificaciones por Asesor - Ventas (OT)</h3>
-                                <div id="tablaAsesores"></div>
-                            </div>
-                            
-                            <!-- Asesores con mejor percepción -->
-                            <div class="stat-card">
-                                <h3>Ranking de Asesores por Satisfacción</h3>
-                                <div id="rankingAsesores"></div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Nuevo dashboard en grid -->
+                    <div class="dashboard-grid">
+                        <!-- Gráfico de líneas (nuevo) -->
+                        <div class="dashboard-card card-large">
+                            <h3>Tendencia de Calificaciones</h3>
+                            <div class="chart-container">
+                                <canvas id="chartLineas"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráfico de ventas (existente) -->
+                        <div class="dashboard-card card-small">
+                            <h3>Percepción - Ventas (OT)</h3>
+                            <div class="chart-container">
+                                <canvas id="chartVentas"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráfico de conformidad (existente) -->
+                        <div class="dashboard-card card-small">
+                            <h3>Percepción - Conformidad</h3>
+                            <div class="chart-container">
+                                <canvas id="chartConformidad"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabla de asesores (existente) -->
+                        <div class="dashboard-card card-small">
+                            <h3>Calificaciones por Asesor</h3>
+                            <div id="tablaAsesores"></div>
+                        </div>
+                        
+                        <!-- Ranking de asesores (existente) -->
+                        <div class="dashboard-card card-small">
+                            <h3>Ranking de Satisfacción</h3>
+                            <div id="rankingAsesores"></div>
+                        </div>
+                        
+                        <!-- Nuevo panel adicional (basado en la imagen) -->
+                        <div class="dashboard-card card-small">
+                            <h3>Distribución por Regiones</h3>
+                            <div class="chart-container">
+                                <canvas id="chartRegiones"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de calificaciones (existente) -->
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table id="tablaCalificaciones">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Asesor</th>
+                                        <th>Nombres</th>
+                                        <th>Calificación</th>
+                                        <th>Tipo</th>
+                                        <th>+</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal de detalles (mantener sin cambios) -->
+                    <div id="modalDetalles" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Detalles de Calificación #<span id="modalIdCalificacion"></span></h3>
+                                <span class="close-button" id="closeModalDetalles">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Información básica del registro -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>Información</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="info-grupo">
+                                            <div class="info-etiqueta">RUC:</div>
+                                            <div class="info-valor" id="detallesRuc"></div>
+                                        </div>
+                                        <div class="info-grupo">
+                                            <div class="info-etiqueta">Documento:</div>
+                                            <div class="info-valor" id="detallesDocumento"></div>
+                                        </div>
+                                        <div class="info-grupo">
+                                            <div class="info-etiqueta">Fecha:</div>
+                                            <div class="info-valor" id="detallesFecha"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>Observaciones</strong>
+                                    </div>
+                                    <div class="card-body" id="detallesObservaciones">
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>Promociones</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="detallesPromociones"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="btnCerrarModalDetalles">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="mensaje" class="mensaje"></div>
                 </div>
             </div>
         </main>
@@ -457,6 +659,12 @@
     
     <script>
         const API_BASE_URL = '/api';
+
+        // Variables globales para las instancias de los gráficos
+        let chartVentas = null;
+        let chartConformidad = null;
+        let chartLineas = null;
+        let chartRegiones = null;
 
         // Función para formatear fecha
         function formatearFecha(fecha) {
@@ -605,7 +813,13 @@
         function crearGraficosEstadisticas(ventasStats, conformidadStats, asesoresStats, asesoresRanking) {
             // 1. Gráfico para Ventas (OT)
             const ctxVentas = document.getElementById('chartVentas').getContext('2d');
-            new Chart(ctxVentas, {
+            
+            // Destruir el gráfico existente si hay uno
+            if (chartVentas && typeof chartVentas.destroy === 'function') {
+                chartVentas.destroy();
+            }
+            
+            chartVentas = new Chart(ctxVentas, {
                 type: 'pie',
                 data: {
                     labels: ['Bueno', 'Regular', 'Malo', 'No votado'],
@@ -619,7 +833,14 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: window.innerWidth < 576 ? 'bottom' : 'bottom',
+                            align: 'start',
+                            labels: {
+                                boxWidth: window.innerWidth < 576 ? 10 : 15,
+                                font: {
+                                    size: window.innerWidth < 576 ? 9 : 12
+                                }
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -637,7 +858,13 @@
             
             // 2. Gráfico para Conformidad
             const ctxConformidad = document.getElementById('chartConformidad').getContext('2d');
-            new Chart(ctxConformidad, {
+            
+            // Destruir el gráfico existente si hay uno
+            if (chartConformidad && typeof chartConformidad.destroy === 'function') {
+                chartConformidad.destroy();
+            }
+            
+            chartConformidad = new Chart(ctxConformidad, {
                 type: 'pie',
                 data: {
                     labels: ['Bueno', 'Regular', 'Malo', 'No votado'],
@@ -651,7 +878,13 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: window.innerWidth < 576 ? 'bottom' : 'top',
+                            labels: {
+                                boxWidth: window.innerWidth < 576 ? 12 : 20,
+                                font: {
+                                    size: window.innerWidth < 576 ? 10 : 12
+                                }
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -737,7 +970,607 @@
             rankingAsesores.innerHTML = rankingHtml;
         }
 
-        // Modificar la función cargarCalificaciones para incluir las estadísticas
+        // Nuevas funciones para los filtros
+        function inicializarFiltros(data) {
+            // Extraer valores únicos para los filtros
+            const asesores = [...new Set(data.map(item => item.asesor).filter(Boolean))];
+            const grupos = [...new Set(data.map(item => item.grupo).filter(Boolean))];
+            const calificaciones = [...new Set(data.map(item => item.calificacion).filter(Boolean))];
+            
+            // Llenar los filtros con opciones
+            llenarSelect('filtro1', [{ valor: '', texto: 'Todos los asesores' }, ...asesores.map(a => ({ valor: a, texto: a }))]);
+            llenarSelect('filtro2', [{ valor: '', texto: 'Todos los grupos' }, ...grupos.map(g => ({ valor: g, texto: g }))]);
+            llenarSelect('filtro3', [{ valor: '', texto: 'Todas las calificaciones' }, ...calificaciones.map(c => ({ valor: c, texto: c }))]);
+            
+            // NO sobrescribimos el filtro4, solo añadimos las fechas extraídas como grupo separado
+            const fechas = extraerFechasUnicas(data);
+            
+            // Obtener el selector de fechas
+            const selectorFechas = document.getElementById('filtro4');
+            
+            // Comprobar si ya tiene las opciones predefinidas
+            const tieneOpcionesPredefinidas = selectorFechas.querySelector('option[value="hoy"]') !== null;
+            
+            // Si NO tiene las opciones predefinidas, las añadimos
+            if (!tieneOpcionesPredefinidas) {
+                // Mantener la primera opción "Todos los periodos"
+                const opcionPorDefecto = selectorFechas.options[0];
+                
+                // Limpiar el selector
+                selectorFechas.innerHTML = '';
+                
+                // Volver a añadir la opción por defecto
+                selectorFechas.appendChild(opcionPorDefecto);
+                
+                // Añadir las opciones predefinidas de rangos
+                const rangosPredefinidos = [
+                    { valor: 'hoy', texto: 'Hoy' },
+                    { valor: 'ayer', texto: 'Ayer' },
+                    { valor: 'semana', texto: 'Esta semana' },
+                    { valor: 'mes', texto: 'Este mes' },
+                    { valor: 'mes-1', texto: 'Último mes' },
+                    { valor: 'mes-3', texto: 'Últimos 3 meses' },
+                    { valor: 'mes-6', texto: 'Últimos 6 meses' },
+                    { valor: 'año', texto: 'Este año' },
+                    { valor: 'personalizado', texto: 'Rango personalizado' }
+                ];
+                
+                // Crear grupo para rangos predefinidos
+                const grupoRangos = document.createElement('optgroup');
+                grupoRangos.label = 'Rangos predefinidos';
+                
+                // Añadir opciones al grupo
+                rangosPredefinidos.forEach(opcion => {
+                    const option = document.createElement('option');
+                    option.value = opcion.valor;
+                    option.textContent = opcion.texto;
+                    grupoRangos.appendChild(option);
+                });
+                
+                // Añadir el grupo al selector
+                selectorFechas.appendChild(grupoRangos);
+            }
+            
+            // Verificar si ya existe un grupo para fechas específicas
+            let grupoFechas = selectorFechas.querySelector('optgroup[label="Fechas específicas"]');
+            
+            // Si no existe, crearlo
+            if (!grupoFechas) {
+                grupoFechas = document.createElement('optgroup');
+                grupoFechas.label = 'Fechas específicas';
+                selectorFechas.appendChild(grupoFechas);
+            } else {
+                // Si existe, limpiarlo
+                grupoFechas.innerHTML = '';
+            }
+            
+            // Añadir las fechas específicas al grupo
+            fechas.forEach(opcion => {
+                const option = document.createElement('option');
+                option.value = opcion.valor;
+                option.textContent = opcion.texto;
+                grupoFechas.appendChild(option);
+            });
+            
+            // Agregar event listeners
+            document.querySelectorAll('.filtro-select').forEach(select => {
+                // Eliminar listeners antiguos usando clonación
+                const nuevoSelect = select.cloneNode(true);
+                select.parentNode.replaceChild(nuevoSelect, select);
+                
+                // Añadir nuevo listener
+                nuevoSelect.addEventListener('change', () => aplicarFiltros(data));
+            });
+        }
+        
+        function llenarSelect(id, opciones) {
+            const select = document.getElementById(id);
+            select.innerHTML = '';
+            
+            opciones.forEach(opcion => {
+                const option = document.createElement('option');
+                option.value = opcion.valor;
+                option.textContent = opcion.texto;
+                select.appendChild(option);
+            });
+        }
+        
+        function extraerFechasUnicas(data) {
+            // Extraer meses únicos de los registros
+            const fechas = [];
+            data.forEach(item => {
+                if (item.timestamp) {
+                    const fecha = new Date(item.timestamp);
+                    const mesAnio = `${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
+                    const mesAnioObj = {
+                        valor: `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`,
+                        texto: mesAnio
+                    };
+                    
+                    if (!fechas.some(f => f.valor === mesAnioObj.valor)) {
+                        fechas.push(mesAnioObj);
+                    }
+                }
+            });
+            
+            // Ordenar fechas (más recientes primero)
+            return fechas.sort((a, b) => b.valor.localeCompare(a.valor));
+        }
+        
+        // Inicializar los eventos para el selector de fechas
+        function inicializarFiltroFechas() {
+            const selectFiltroFechas = document.getElementById('filtro4');
+            const rangoFechasContainer = document.getElementById('rangoFechasContainer');
+            const fechaInicio = document.getElementById('fechaInicio');
+            const fechaFin = document.getElementById('fechaFin');
+            const btnAplicarFechas = document.getElementById('aplicarFechas');
+            
+            // Configurar fechas por defecto (inicio: hace un mes, fin: hoy)
+            const hoy = new Date();
+            const haceMes = new Date();
+            haceMes.setMonth(haceMes.getMonth() - 1);
+            
+            fechaInicio.valueAsDate = haceMes;
+            fechaFin.valueAsDate = hoy;
+            
+            // Mostrar/ocultar el selector de rango según la opción seleccionada
+            selectFiltroFechas.addEventListener('change', function() {
+                if (this.value === 'personalizado') {
+                    rangoFechasContainer.style.display = 'block';
+                } else {
+                    rangoFechasContainer.style.display = 'none';
+                    // Aplicar el filtro de rango predefinido inmediatamente
+                    aplicarFiltros(window.registrosCompletos || []);
+                }
+            });
+            
+            // Aplicar el filtro cuando se hace clic en el botón
+            btnAplicarFechas.addEventListener('click', function() {
+                aplicarFiltros(window.registrosCompletos || []);
+            });
+        }
+
+        function aplicarFiltros(data) {
+            const asesor = document.getElementById('filtro1').value;
+            const grupo = document.getElementById('filtro2').value;
+            const calificacion = document.getElementById('filtro3').value;
+            const filtroFecha = document.getElementById('filtro4').value;
+            
+            // Filtrar datos según selecciones
+            let datosFiltrados = data.filter(item => {
+                let cumpleFiltros = true;
+                
+                if (asesor && item.asesor !== asesor) cumpleFiltros = false;
+                if (grupo && item.grupo !== grupo) cumpleFiltros = false;
+                if (calificacion && item.calificacion !== calificacion) cumpleFiltros = false;
+                
+                // Nuevo filtro de fechas mejorado
+                if (filtroFecha && item.timestamp) {
+                    const itemFecha = new Date(item.timestamp);
+                    const hoy = new Date();
+                    hoy.setHours(23, 59, 59, 999); // Final del día actual
+                    
+                    const ayer = new Date();
+                    ayer.setDate(ayer.getDate() - 1);
+                    ayer.setHours(0, 0, 0, 0); // Inicio del día de ayer
+                    
+                    const ayerFin = new Date();
+                    ayerFin.setDate(ayerFin.getDate() - 1);
+                    ayerFin.setHours(23, 59, 59, 999); // Final del día de ayer
+                    
+                    // Inicio de semana (lunes)
+                    const inicioSemana = new Date();
+                    const diaSemana = inicioSemana.getDay();
+                    const diff = inicioSemana.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
+                    inicioSemana.setDate(diff);
+                    inicioSemana.setHours(0, 0, 0, 0);
+                    
+                    // Inicio de mes
+                    const inicioMes = new Date();
+                    inicioMes.setDate(1);
+                    inicioMes.setHours(0, 0, 0, 0);
+                    
+                    // Inicio del mes anterior
+                    const inicioMesAnterior = new Date();
+                    inicioMesAnterior.setMonth(inicioMesAnterior.getMonth() - 1);
+                    inicioMesAnterior.setDate(1);
+                    inicioMesAnterior.setHours(0, 0, 0, 0);
+                    
+                    // Hace 3 meses
+                    const hace3Meses = new Date();
+                    hace3Meses.setMonth(hace3Meses.getMonth() - 3);
+                    hace3Meses.setHours(0, 0, 0, 0);
+                    
+                    // Hace 6 meses
+                    const hace6Meses = new Date();
+                    hace6Meses.setMonth(hace6Meses.getMonth() - 6);
+                    hace6Meses.setHours(0, 0, 0, 0);
+                    
+                    // Inicio del año
+                    const inicioAño = new Date(hoy.getFullYear(), 0, 1);
+                    inicioAño.setHours(0, 0, 0, 0);
+                    
+                    // Aplicar filtro según la opción seleccionada
+                    switch (filtroFecha) {
+                        case 'hoy':
+                            const inicioHoy = new Date();
+                            inicioHoy.setHours(0, 0, 0, 0);
+                            if (itemFecha < inicioHoy || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'ayer':
+                            if (itemFecha < ayer || itemFecha > ayerFin) cumpleFiltros = false;
+                            break;
+                        case 'semana':
+                            if (itemFecha < inicioSemana || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'mes':
+                            if (itemFecha < inicioMes || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'mes-1':
+                            if (itemFecha < inicioMesAnterior || itemFecha > inicioMes) cumpleFiltros = false;
+                            break;
+                        case 'mes-3':
+                            if (itemFecha < hace3Meses || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'mes-6':
+                            if (itemFecha < hace6Meses || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'año':
+                            if (itemFecha < inicioAño || itemFecha > hoy) cumpleFiltros = false;
+                            break;
+                        case 'personalizado':
+                            const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+                            fechaInicio.setHours(0, 0, 0, 0);
+                            
+                            const fechaFin = new Date(document.getElementById('fechaFin').value);
+                            fechaFin.setHours(23, 59, 59, 999);
+                            
+                            if (isNaN(fechaInicio) || isNaN(fechaFin)) {
+                                // Si las fechas no son válidas, no filtramos
+                                break;
+                            }
+                            
+                            if (itemFecha < fechaInicio || itemFecha > fechaFin) cumpleFiltros = false;
+                            break;
+                        default:
+                            // Si no hay filtro de fecha, no se filtra por fecha
+                            break;
+                    }
+                }
+                
+                return cumpleFiltros;
+            });
+            
+            // Actualizar visualizaciones con datos filtrados
+            actualizarVisualizaciones(datosFiltrados);
+            actualizarTablaRegistros(datosFiltrados);
+        }
+
+        // Función para actualizar todas las visualizaciones
+        function actualizarVisualizaciones(data) {
+            // Generar estadísticas con los datos filtrados
+            generarEstadisticas(data);
+            
+            // Actualizar el nuevo gráfico de líneas
+            actualizarGraficoLineas(data);
+            
+            // Actualizar el nuevo gráfico de regiones
+            actualizarGraficoRegiones(data);
+        }
+        
+        // Función para actualizar el gráfico de líneas - corregida
+        function actualizarGraficoLineas(data) {
+            // Agrupar datos por día (en lugar de por mes)
+            const datosPorDia = {};
+            const diasEtiquetas = [];
+            
+            data.forEach(item => {
+                if (item.timestamp) {
+                    const fecha = new Date(item.timestamp);
+                    // Crear clave única para cada día (YYYY-MM-DD)
+                    const fechaKey = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
+                    
+                    // Formato DD/MM/YYYY para mostrar en el gráfico
+                    const etiquetaDia = `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}/${fecha.getFullYear()}`;
+                    
+                    if (!datosPorDia[fechaKey]) {
+                        datosPorDia[fechaKey] = {
+                            fecha: fecha,
+                            etiqueta: etiquetaDia,
+                            bueno: 0,
+                            regular: 0,
+                            malo: 0,
+                            total: 0
+                        };
+                        diasEtiquetas.push(fechaKey);
+                    }
+                    
+                    datosPorDia[fechaKey].total++;
+                    
+                    if (item.calificacion === 'Bueno') datosPorDia[fechaKey].bueno++;
+                    else if (item.calificacion === 'Regular') datosPorDia[fechaKey].regular++;
+                    else if (item.calificacion === 'Malo') datosPorDia[fechaKey].malo++;
+                }
+            });
+            
+            // Ordenar los días cronológicamente
+            diasEtiquetas.sort();
+            
+            // Limitar a máximo 15 días si hay demasiados datos (para mejor visualización)
+            let diasMostrados = diasEtiquetas;
+            if (diasEtiquetas.length > 15) {
+                diasMostrados = diasEtiquetas.slice(-15); // Mostrar los últimos 15 días
+            }
+            
+            // Preparar datos y etiquetas para el gráfico
+            const etiquetasFormateadas = diasMostrados.map(key => datosPorDia[key].etiqueta);
+            const datosLineas = {
+                bueno: diasMostrados.map(key => datosPorDia[key].bueno),
+                regular: diasMostrados.map(key => datosPorDia[key].regular),
+                malo: diasMostrados.map(key => datosPorDia[key].malo)
+            };
+            
+            // Crear gráfico
+            const ctx = document.getElementById('chartLineas').getContext('2d');
+            
+            // Destruir el gráfico anterior si existe
+            if (chartLineas && typeof chartLineas.destroy === 'function') {
+                chartLineas.destroy();
+            }
+
+            chartLineas = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: etiquetasFormateadas,
+                    datasets: [
+                        {
+                            label: 'Bueno',
+                            data: datosLineas.bueno,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Regular',
+                            data: datosLineas.regular,
+                            borderColor: '#FFC107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Malo',
+                            data: datosLineas.malo,
+                            borderColor: '#F44336',
+                            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: window.innerWidth < 576 ? 'bottom' : 'top',
+                            labels: {
+                                boxWidth: window.innerWidth < 576 ? 12 : 20,
+                                font: {
+                                    size: window.innerWidth < 576 ? 10 : 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label; // Ya está en formato DD/MM/YYYY
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: window.innerWidth > 576,
+                                text: 'Fecha'
+                            },
+                            ticks: {
+                                maxRotation: 90, // Mayor rotación en móviles para ahorrar espacio
+                                minRotation: window.innerWidth < 576 ? 90 : 45,
+                                font: {
+                                    size: window.innerWidth < 576 ? 8 : 10
+                                },
+                                callback: function(value, index, values) {
+                                    // En móviles, mostrar menos etiquetas 
+                                    if (window.innerWidth < 576) {
+                                        return index % 3 === 0 ? this.getLabelForValue(value) : '';
+                                    }
+                                    return this.getLabelForValue(value);
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: window.innerWidth > 576,
+                                text: 'Cantidad de Calificaciones'
+                            },
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    size: window.innerWidth < 576 ? 8 : 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Para chartRegiones
+        function actualizarGraficoRegiones(data) {
+            // Agregar agrupación por grupos para este gráfico
+            const gruposDatos = {};
+            
+            // Agrupar datos por el campo "grupo"
+            data.forEach(item => {
+                const grupo = item.grupo || 'Sin grupo';
+                
+                if (!gruposDatos[grupo]) {
+                    gruposDatos[grupo] = {
+                        total: 0,
+                        bueno: 0,
+                        regular: 0,
+                        malo: 0
+                    };
+                }
+                
+                gruposDatos[grupo].total++;
+                
+                if (item.calificacion === 'Bueno') gruposDatos[grupo].bueno++;
+                else if (item.calificacion === 'Regular') gruposDatos[grupo].regular++;
+                else if (item.calificacion === 'Malo') gruposDatos[grupo].malo++;
+            });
+            
+            // Preparar datos para el gráfico
+            const grupos = Object.keys(gruposDatos);
+            const totalesPorGrupo = grupos.map(grupo => gruposDatos[grupo].total);
+            
+            // Crear gráfico
+            const ctx = document.getElementById('chartRegiones').getContext('2d');
+            
+            // Destruir el gráfico anterior si existe
+            if (chartRegiones && typeof chartRegiones.destroy === 'function') {
+                chartRegiones.destroy();
+            }
+
+            chartRegiones = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: grupos,
+                    datasets: [{
+                        label: 'Distribución por grupo',
+                        data: totalesPorGrupo,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Registros por grupo',
+                            font: {
+                                size: window.innerWidth < 576 ? 10 : 14
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 576 ? 8 : 10
+                                },
+                                maxRotation: window.innerWidth < 576 ? 90 : 0
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 576 ? 8 : 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+
+        function ajustarTamañoGraficosCirculares() {
+            const cardSmallElements = document.querySelectorAll('.card-small');
+            
+            cardSmallElements.forEach(card => {
+                if (window.innerWidth < 576) {
+                    // En móvil, hacer que el contenedor sea más alto
+                    const container = card.querySelector('.chart-container');
+                    if (container) {
+                        container.style.height = '200px';
+                        container.style.width = '100%';
+                        container.style.maxWidth = '200px';
+                        container.style.margin = '0 auto';
+                    }
+                } else {
+                    // En escritorio, restaurar estilo
+                    const container = card.querySelector('.chart-container');
+                    if (container) {
+                        container.style.height = '';
+                        container.style.width = '';
+                        container.style.maxWidth = '';
+                        container.style.margin = '';
+                    }
+                }
+            });
+        }
+
+        // Actualizar la tabla de registros
+        function actualizarTablaRegistros(data) {
+            // Filtrar registros que tengan calificación
+            const registrosFiltrados = data.filter(registro => 
+                registro.calificacion && registro.calificacion.trim() !== ''
+            );
+            
+            // Ordenar registros por fecha (más recientes primero)
+            registrosFiltrados.sort((a, b) => {
+                const fechaA = new Date(a.timestamp || 0);
+                const fechaB = new Date(b.timestamp || 0);
+                return fechaB - fechaA; // Orden descendente
+            });
+
+            const tbody = document.querySelector('#tablaCalificaciones tbody');
+            tbody.innerHTML = '';
+
+            registrosFiltrados.forEach(registro => {
+                const registroId = registro.idcalificacion || '-';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${registroId}</td>
+                    <td>${registro.asesor || '-'}</td>
+                    <td>${registro.nombres || '-'}</td>
+                    <td>${registro.calificacion || '-'}</td>
+                    <td>${registro.tipo || '-'}</td>
+                    <td>
+                        <button class="btn-detalles" data-id="${registroId}">+</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                
+                // Add event listener to the button we just created
+                const btn = tr.querySelector('.btn-detalles');
+                btn.addEventListener('click', function() {
+                    const registroMatch = data.find(r => r.idcalificacion == registroId);
+                    if (registroMatch) {
+                        mostrarDetalles(registroMatch);
+                    } else {
+                        console.error("No se encontró el registro con ID:", registroId);
+                    }
+                });
+            });
+        }
+
+        // Modificar la función cargarCalificaciones para usar las nuevas funciones
         async function cargarCalificaciones() {
             try {
                 const response = await fetch(AppConfig.getFullPath(`${API_BASE_URL}/records`));
@@ -747,63 +1580,33 @@
                     throw new Error('Error en la respuesta del servidor');
                 }
 
-                // Generar estadísticas con todos los registros
-                generarEstadisticas(data.records);
-
-                // Resto del código existente para la tabla...
-                // Filtrar registros que tengan calificación
-                const registrosFiltrados = data.records.filter(registro => 
-                    registro.calificacion && registro.calificacion.trim() !== ''
-                );
+                const registros = data.records;
                 
-                // Ordenar registros por fecha (más recientes primero)
-                registrosFiltrados.sort((a, b) => {
-                    const fechaA = new Date(a.timestamp || 0);
-                    const fechaB = new Date(b.timestamp || 0);
-                    return fechaB - fechaA; // Orden descendente
-                });
-
-                const tbody = document.querySelector('#tablaCalificaciones tbody');
-                tbody.innerHTML = '';
-
-                registrosFiltrados.forEach(registro => {
-                    const registroId = registro.idcalificacion || '-';
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${registroId}</td>
-                        <td>${registro.asesor || '-'}</td>
-                        <td>${registro.nombres || '-'}</td>
-                        <td>${registro.calificacion || '-'}</td>
-                        <td>${registro.tipo || '-'}</td>
-                        <td>
-                            <button class="btn-detalles" data-id="${registroId}">+</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                    
-                    // Add event listener to the button we just created
-                    const btn = tr.querySelector('.btn-detalles');
-                    btn.addEventListener('click', function() {
-                        console.log("Button clicked for ID:", registroId);
-                        const registroMatch = data.records.find(r => r.idcalificacion == registroId);
-                        if (registroMatch) {
-                            mostrarDetalles(registroMatch);
-                        } else {
-                            console.error("No se encontró el registro con ID:", registroId);
-                        }
-                    });
-                });
+                // Guardar referencia global a los registros completos
+                window.registrosCompletos = registros;
                 
-                // Remove the previous event listener attachment loop
-                // (we're now attaching them individually above)
+                // Inicializar filtros
+                inicializarFiltros(registros);
+                
+                // Inicializar el filtro de fechas específicamente
+                inicializarFiltroFechas();
+                
+                // Inicializar visualizaciones con todos los datos
+                actualizarVisualizaciones(registros);
+                actualizarTablaRegistros(registros);
+                
             } catch (err) {
                 console.error('Error:', err);
                 document.getElementById('mensaje').innerHTML =
                     `<div class="error-message">Error cargando calificaciones: ${err.message}</div>`;
             }
         }
+        
         // Cargar datos al iniciar
+        window.addEventListener('load', ajustarTamañoGraficosCirculares);
         window.addEventListener('load', cargarCalificaciones);
+
+        window.addEventListener('resize', ajustarTamañoGraficosCirculares);
     </script>
 </body>
 </html>
