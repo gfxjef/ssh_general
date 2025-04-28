@@ -4,26 +4,330 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Grupo Kossodo</title>
-    <link rel="stylesheet" href="{{ base_url }}/static/css/styles.css">
+    <!-- Font Awesome externo (solo iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- CSS embebido -->
+    <style>
+        /* Modern Login Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            /* Gradiente con los 3 colores corporativos */
+            background: linear-gradient(135deg, #6cba9d 0%, #3c4262 50%, #f58733 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container.modern {
+            display: flex;
+            width: 900px;
+            max-width: 90%;
+            height: 550px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background-color: white;
+        }
+
+        /* Left panel con imagen de fondo y degradado semitransparente */
+        .login-panel.left-panel {
+            flex: 1;
+            position: relative;
+            background: url('/grupokossodo_ssh/static/assets/images/people.webp') center/cover no-repeat;
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Capa de degradado semitransparente sobre la imagen */
+        .login-panel.left-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(60, 66, 98, 0.5) 0%, rgba(45, 48, 71, 0.5) 100%);
+            z-index: 1;
+        }
+
+        /* Aseguramos que el contenido esté por encima del degradado */
+        .login-panel.left-panel .logo,
+        .login-panel.left-panel .welcome-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            margin-bottom: 40px;
+        }
+
+        .logo img {
+            max-width: 160px;
+            height: auto;
+        }
+
+        .welcome-text {
+            margin-top: 60px;
+        }
+
+        .welcome-text h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .welcome-text p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        /* Right panel */
+        .login-panel.right-panel {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-form-wrapper {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .login-form-wrapper h2 {
+            color: #3c4262;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-group.modern {
+            margin-bottom: 20px;
+        }
+
+        .form-group.modern label {
+            display: block;
+            margin-bottom: 8px;
+            color: #3c4262;
+            font-size: 0.9rem;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6cba9d;
+        }
+
+        .form-group.modern input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 6px;
+            border: 1px solid #e1e5ee;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group.modern input:focus {
+            border-color: #6cba9d;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 186, 157, 0.1);
+        }
+
+        .btn-login.modern {
+            width: 100%;
+            background-color: #6cba9d;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login.modern:hover {
+            background-color: #f58733;
+        }
+
+        .additional-options {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .forgot-password {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #f58733;
+        }
+
+        .error-message {
+            color: #ef4444;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            background-color: #fee2e2;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .error-message:not(:empty) {
+            display: block;
+        }
+
+        /* Responsive design - Tablets */
+        @media screen and (max-width: 1024px) {
+            .login-container.modern {
+                width: 90%;
+                height: auto;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Responsive design - Mobile devices */
+        @media screen and (max-width: 768px) {
+            .login-container.modern {
+                flex-direction: column;
+                height: auto;
+                margin: 20px 0;
+            }
+            
+            .login-panel.left-panel {
+                padding: 30px;
+                min-height: 200px;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 20px;
+            }
+            
+            .welcome-text {
+                margin-top: 20px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .welcome-text p {
+                max-width: 100%;
+                font-size: 0.9rem;
+            }
+            
+            .login-panel.right-panel {
+                padding: 30px 20px;
+            }
+            
+            .login-form-wrapper {
+                max-width: 100%;
+            }
+        }
+
+        /* For very small screens */
+        @media screen and (max-width: 480px) {
+            .login-container.modern {
+                width: 95%;
+            }
+            
+            .welcome-text h1 {
+                font-size: 1.8rem;
+            }
+            
+            .login-panel.left-panel {
+                padding: 20px;
+                min-height: 150px;
+            }
+            
+            .logo img {
+                max-width: 120px;
+            }
+            
+            .login-form-wrapper h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-form">
-            <h1>Inicio de Sesión</h1>
-            <div id="error-message" class="error-message"></div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="usuario">Usuario</label>
-                    <input type="text" id="usuario" name="usuario" required>
+    <div class="login-container modern">
+        <!-- Left panel with gradient background -->
+        <div class="login-panel left-panel">
+            <div class="logo">
+                <!-- Corregida la ruta de la imagen según el formato del header -->
+                <img src="/grupokossodo_ssh/static/assets/images/grupokossodo_blanco.png" alt="Grupo Kossodo" 
+                     onerror="this.src='/grupokossodo_ssh/static/assets/images/grupokossodo_blanco.png';">
+            </div>
+            <div class="welcome-text">
+                <h1>Hello,<br>welcome!</h1>
+                <p>Accede a la plataforma de administración de Grupo Kossodo</p>
+            </div>
+        </div>
+
+        <!-- Right panel with login form -->
+        <div class="login-panel right-panel">
+            <div class="login-form-wrapper">
+                <h2>Iniciar sesión</h2>
+                <div id="error-message" class="error-message"></div>
+                
+                <form id="login-form">
+                    <div class="form-group modern">
+                        <label for="usuario">Email o usuario</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="usuario" name="usuario" placeholder="nombre@empresa.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group modern">
+                        <label for="pass">Contraseña</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="pass" name="pass" placeholder="••••••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-login modern">Ingresar</button>
+                </form>
+                
+                <div class="additional-options">
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
                 </div>
-                <div class="form-group">
-                    <label for="pass">Contraseña</label>
-                    <input type="password" id="pass" name="pass" required>
-                </div>
-                <button type="submit" class="btn-login">Ingresar</button>
-            </form>
+            </div>
         </div>
     </div>
+
+    <!-- Mantén el JS externo si lo necesitas -->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>
