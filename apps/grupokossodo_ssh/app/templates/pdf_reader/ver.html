@@ -566,121 +566,61 @@ function shareCatalog(catalogName) {
         svg: originalSvg
     };
     
-    // Intentar copiar el enlace al portapapeles
-    navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-            // Cambiar el texto e icono del botón
-            buttonSpan.textContent = "Link Copiado";
-            buttonSvg.outerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 6L9 17l-5-5"></path>
-                </svg>
-            `;
-            
-            // Restaurar el texto e icono original después de 2 segundos
-            setTimeout(() => {
-                buttonSpan.textContent = originalContent.text;
-                button.querySelector('svg').outerHTML = originalContent.svg;
-            }, 2000);
-        })
-        .catch(err => {
-            console.error('Error al copiar enlace:', err);
-            // Intentar con el método alternativo si la API Clipboard falla
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = shareUrl;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                
-                // Cambiar el texto e icono del botón
-                buttonSpan.textContent = "Link Copiado";
-                buttonSvg.outerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"></path>
-                    </svg>
-                `;
-                
-                // Restaurar el texto e icono original después de 2 segundos
-                setTimeout(() => {
-                    buttonSpan.textContent = originalContent.text;
-                    button.querySelector('svg').outerHTML = originalContent.svg;
-                }, 2000);
-            } catch (e) {
-                console.error('Error con el método alternativo:', e);
-                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
-            }
-        });
-}
-
-// Actualizar la función para compartir el catálogo general con la misma lógica
-function shareGeneralCatalog() {
-    // URL del visualizador general de catálogos
-    const shareUrl = "http://209.45.52.219:5000/grupokossodo_ssh/pdf_reader/catalogo";
-    
-    // Encontrar el botón que activó esta función
-    const button = event.currentTarget;
-    const buttonSpan = button.querySelector('span');
-    const buttonSvg = button.querySelector('svg');
-    const originalText = buttonSpan.textContent;
-    const originalSvg = buttonSvg.outerHTML;
-    
-    // Guardar estado original
-    const originalContent = {
-        text: originalText,
-        svg: originalSvg
+    // Function to show success UI
+    const showSuccess = () => {
+        buttonSpan.textContent = "Link Copiado";
+        buttonSvg.outerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+        `;
+        
+        // Restaurar el texto e icono original después de 2 segundos
+        setTimeout(() => {
+            buttonSpan.textContent = originalContent.text;
+            button.querySelector('svg').outerHTML = originalContent.svg;
+        }, 2000);
     };
     
-    // Intentar copiar el enlace al portapapeles
-    navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-            // Cambiar el texto e icono del botón
-            buttonSpan.textContent = "Link Copiado";
-            buttonSvg.outerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 6L9 17l-5-5"></path>
-                </svg>
-            `;
+    // Check if Clipboard API is available
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => {
+                showSuccess();
+            })
+            .catch(err => {
+                console.error('Error al copiar enlace:', err);
+                useFallbackMethod();
+            });
+    } else {
+        console.log('Clipboard API no disponible, usando método alternativo');
+        useFallbackMethod();
+    }
+    
+    // Fallback clipboard method
+    function useFallbackMethod() {
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = shareUrl;
+            textarea.style.position = 'fixed';  // Make it less visible
+            textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
             
-            // Restaurar el texto e icono original después de 2 segundos
-            setTimeout(() => {
-                buttonSpan.textContent = originalContent.text;
-                button.querySelector('svg').outerHTML = originalContent.svg;
-            }, 2000);
-        })
-        .catch(err => {
-            console.error('Error al copiar enlace:', err);
-            // Intentar con el método alternativo si la API Clipboard falla
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = shareUrl;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                
-                // Cambiar el texto e icono del botón
-                buttonSpan.textContent = "Link Copiado";
-                buttonSvg.outerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"></path>
-                    </svg>
-                `;
-                
-                // Restaurar el texto e icono original después de 2 segundos
-                setTimeout(() => {
-                    buttonSpan.textContent = originalContent.text;
-                    button.querySelector('svg').outerHTML = originalContent.svg;
-                }, 2000);
-            } catch (e) {
-                console.error('Error con el método alternativo:', e);
-                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
+            if (successful) {
+                showSuccess();
+            } else {
+                throw new Error('document.execCommand returned false');
             }
-        });
+        } catch (e) {
+            console.error('Error con el método alternativo:', e);
+            alert('No se pudo copiar el enlace. Por favor, copia manualmente: ' + shareUrl);
+        }
+    }
 }
-
-// Añadir estas funciones al final del bloque <script> existente
 
 function deletePDF(catalogName) {
     if (confirm(`¿Estás seguro de que deseas eliminar el PDF "${catalogName}"?`)) {
@@ -719,52 +659,60 @@ function shareGeneralCatalog() {
         svg: originalSvg
     };
     
-    // Intentar copiar el enlace al portapapeles
-    navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-            // Cambiar el texto e icono del botón
-            buttonSpan.textContent = "Link Copiado";
-            buttonSvg.outerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 6L9 17l-5-5"></path>
-                </svg>
-            `;
+    // Function to show success UI
+    const showSuccess = () => {
+        buttonSpan.textContent = "Link Copiado";
+        buttonSvg.outerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+        `;
+        
+        // Restaurar el texto e icono original después de 2 segundos
+        setTimeout(() => {
+            buttonSpan.textContent = originalContent.text;
+            button.querySelector('svg').outerHTML = originalContent.svg;
+        }, 2000);
+    };
+    
+    // Check if Clipboard API is available
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => {
+                showSuccess();
+            })
+            .catch(err => {
+                console.error('Error al copiar enlace:', err);
+                useFallbackMethod();
+            });
+    } else {
+        console.log('Clipboard API no disponible, usando método alternativo');
+        useFallbackMethod();
+    }
+    
+    // Fallback clipboard method
+    function useFallbackMethod() {
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = shareUrl;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
             
-            // Restaurar el texto e icono original después de 2 segundos
-            setTimeout(() => {
-                buttonSpan.textContent = originalContent.text;
-                button.querySelector('svg').outerHTML = originalContent.svg;
-            }, 2000);
-        })
-        .catch(err => {
-            console.error('Error al copiar enlace:', err);
-            // Intentar con el método alternativo si la API Clipboard falla
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = shareUrl;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                
-                // Cambiar el texto e icono del botón
-                buttonSpan.textContent = "Link Copiado";
-                buttonSvg.outerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"></path>
-                    </svg>
-                `;
-                
-                // Restaurar el texto e icono original después de 2 segundos
-                setTimeout(() => {
-                    buttonSpan.textContent = originalContent.text;
-                    button.querySelector('svg').outerHTML = originalContent.svg;
-                }, 2000);
-            } catch (e) {
-                console.error('Error con el método alternativo:', e);
-                alert('No se pudo copiar el enlace. Por favor, inténtalo de nuevo.');
+            if (successful) {
+                showSuccess();
+            } else {
+                throw new Error('document.execCommand returned false');
             }
-        });
+        } catch (e) {
+            console.error('Error con el método alternativo:', e);
+            alert('No se pudo copiar el enlace. Por favor, copia manualmente: ' + shareUrl);
+        }
+    }
 }
 </script>
 </body>
