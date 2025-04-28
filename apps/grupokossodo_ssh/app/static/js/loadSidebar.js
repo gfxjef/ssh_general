@@ -102,8 +102,9 @@ function loadSidebarContent(searchInstance) { // Recibe searchInstance
                         const userData = JSON.parse(userDataString);
                         console.log("Datos de usuario parseados:", userData);
                         
-                        const userRole = userData.cargo || null;
-                        console.log("Rol del usuario:", userRole);
+                        // Cambiamos de cargo a rango para los permisos
+                        const userRole = userData.rango || null;
+                        console.log("Rol del usuario (rango):", userRole);
                         
                         if (userRole) {
                             menuAccessManager.setUserRole(userRole);
@@ -111,7 +112,7 @@ function loadSidebarContent(searchInstance) { // Recibe searchInstance
                             console.log("Aplicando permisos al menú...");
                             menuAccessManager.applyMenuPermissions();
                         } else {
-                            console.warn('El usuario no tiene un rol definido (cargo)');
+                            console.warn('El usuario no tiene un rol definido (rango)');
                         }
                     } catch (e) {
                         console.error('Error al procesar datos de usuario:', e);
@@ -132,8 +133,11 @@ function loadSidebarContent(searchInstance) { // Recibe searchInstance
 
             // Pedir a la instancia de Search que cargue los menús
             if (searchInstance && typeof searchInstance.loadMenuItems === 'function') {
-                // No necesita setTimeout si estamos seguros que el DOM está listo
-                searchInstance.loadMenuItems();
+                // Usar setTimeout para asegurar que el DOM esté actualizado con los cambios de permisos
+                setTimeout(() => {
+                    console.log("Cargando menús para búsqueda después de aplicar permisos...");
+                    searchInstance.loadMenuItems();
+                }, 100); // Pequeño retardo para permitir que el DOM se actualice
             } else {
                  console.error("Search instance or loadMenuItems method not available.");
             }

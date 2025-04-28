@@ -45,7 +45,7 @@ body {
     overflow: hidden; /* Prevenir desbordamiento */
 }
 .header {
-  padding: 0 20px;
+  padding: 6px 20px;
 }
 .hamburger-btn {
   display: none;
@@ -93,7 +93,6 @@ header {
     align-items: center;
 }
 
-
 .logo-image {
     height: 40px;
     max-width: 100%;
@@ -102,23 +101,29 @@ header {
 /* Perfil de usuario en header */
 .user-profile {
     padding: 0 15px;
+    margin-left: auto; /* Empuja el perfil hacia la derecha */
 }
 
 .user-info {
     display: flex;
-    align-items: center;
+    align-items: flex-end; /* Alinea los elementos al final (derecha) */
     justify-content: flex-end;
-    flex-direction: row; /* Asegura que los elementos estén en fila */
+    flex-direction: column; /* Cambiado a columna para apilar nombre y rol */
+    text-align: right;
 }
 
-
+.user-name {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    display: block; /* Cambiado a block para tomar el ancho completo */
+}
 
 .user-separator {
     margin: 0 0px;
     color: var(--text-light);
     display: inline;
 }
-
 
 
 /* Modificar los estilos para el nuevo diseño de búsqueda con SVG */

@@ -39,9 +39,9 @@ def handle_login():
 
     try:
         cursor = conn.cursor(dictionary=True)
-        # Consulta para autenticar. Se seleccionan las columnas correo, nombre, cargo y grupo
+        # Consulta para autenticar. Añadimos "rango" a la selección
         cursor.execute(
-            "SELECT correo, nombre, cargo, grupo FROM usuarios WHERE usuario = %s AND pass = %s",
+            "SELECT correo, nombre, cargo, grupo, rango FROM usuarios WHERE usuario = %s AND pass = %s",
             (usuario, password)
         )
         user = cursor.fetchone()
@@ -54,7 +54,8 @@ def handle_login():
                     'correo': user['correo'],
                     'nombre': user['nombre'],
                     'cargo': user['cargo'],
-                    'grupo': user['grupo']
+                    'grupo': user['grupo'],
+                    'rango': user['rango']  # Añadimos rango a la respuesta
                 }
             }), 200
         else:

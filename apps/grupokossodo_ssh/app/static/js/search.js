@@ -34,17 +34,37 @@ class Search {
         // Seleccionar todos los enlaces del menú
         const menuLinks = document.querySelectorAll('.sidebar-nav a.nav-item');
         
-        this.menuItems = Array.from(menuLinks).map(link => {
-            // Obtener el texto del menú
-            const text = link.querySelector('.nav-text')?.textContent || '';
-            // Crear un objeto con información relevante
-            return {
-                text: text.trim(),
-                url: link.getAttribute('href') || '#',
-                element: link,
-                parent: this.getMenuParents(link)
-            };
-        }).filter(item => item.text && item.url !== '#'); // Filtrar elementos vacíos y sin URL
+        this.menuItems = Array.from(menuLinks)
+            .filter(link => {
+                // Verificar si el elemento o alguno de sus padres está oculto por permisos
+                let current = link;
+                while (current && !current.classList.contains('sidebar-nav')) {
+                    // Si el estilo es 'none', el elemento está oculto por permisos
+                    if (current.style && current.style.display === 'none') {
+                        return false;
+                    }
+                    // También verificar elementos padre li ocultos
+                    if (current.parentElement && 
+                        current.parentElement.tagName.toLowerCase() === 'li' && 
+                        current.parentElement.style.display === 'none') {
+                        return false;
+                    }
+                    current = current.parentElement;
+                }
+                return true; // Solo incluir elementos visibles
+            })
+            .map(link => {
+                // Obtener el texto del menú
+                const text = link.querySelector('.nav-text')?.textContent || '';
+                // Crear un objeto con información relevante
+                return {
+                    text: text.trim(),
+                    url: link.getAttribute('href') || '#',
+                    element: link,
+                    parent: this.getMenuParents(link)
+                };
+            })
+            .filter(item => item.text && item.url !== '#'); // Filtrar elementos vacíos y sin URL
         
         console.log('Menú items cargados para búsqueda:', this.menuItems.length);
     }

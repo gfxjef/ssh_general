@@ -92,16 +92,16 @@ header {
     justify-content: space-between;
     align-items: center;
 }
-.header .container-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  height: var(--header-height);
-}
+
 .header-logo img {
   max-height: 40px;
   width: auto;
+}
+.container-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
 }
 
 
@@ -335,10 +335,11 @@ header {
   text-align: right;
 }
 .user-role {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  display: inline; /* Asegura que no tenga saltos de línea */
-
+    font-size: 0.8rem;
+    color: var(--text-light);
+    display: block;
+    width: 100%;
+    text-align: right;
 }
 .logout-btn {
     background: none;

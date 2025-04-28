@@ -11,7 +11,7 @@ class MenuAccessManager {
             // Permisos jerárquicos usando notación de ruta (menús)
             this.permissions = {
                 // Menús principales
-                'Marketing': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
+                'Marketing': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing','rrhh'],
                 'Ventas': ['admin', 'gerente','marketing'],
                 'Bienestar de Talento': ['admin', 'gerente','rrhh','atencion'],
                 'Seguimiento de Pedidos': ['admin', 'gerente', 'vendedor', 'almacen'],
@@ -19,7 +19,7 @@ class MenuAccessManager {
                 // Submenús de Marketing
                 'Marketing/Inventario': ['admin', 'gerente', 'almacen','marketing'],
                 'Marketing/Merchandising': ['admin', 'gerente', 'vendedor', 'almacen','asesor','marketing'],
-                'Marketing/Catalogos': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing'],
+                'Marketing/Catalogos': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing','rrhh'],
                 
                 // Submenús específicos de Marketing/Merchandising
                 'Marketing/Merchandising/Solicitud de Merchandising': ['admin', 'gerente', 'vendedor','asesor','marketing'],
@@ -27,7 +27,7 @@ class MenuAccessManager {
                 'Marketing/Merchandising/Historial Confirmaciones': ['admin', 'gerente','marketing'],
                 
                 // Submenús específicos de Marketing/Catalogos
-                'Marketing/Catalogos/Total': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing'],
+                'Marketing/Catalogos/Total': ['admin', 'gerente', 'vendedor', 'asesor', 'marketing','rrhh'],
                 
                 // Submenús de Ventas
                 'Ventas/Encuestas': ['admin', 'gerente','atencion'],
@@ -40,7 +40,7 @@ class MenuAccessManager {
             
             // Permisos para botones específicos
             this.buttonPermissions = {
-                'delete-pdf': ['admin', 'rrhh'],
+                'delete-pdf': ['admin'],
                 'update-pdf': ['admin'],
                 // Agregar más botones según sea necesario
             };
