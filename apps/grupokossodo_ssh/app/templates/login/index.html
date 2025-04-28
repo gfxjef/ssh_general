@@ -14,7 +14,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
-            /* Gradiente con los 3 colores corporativos */
             background: linear-gradient(135deg, #6cba9d 0%, #3c4262 50%, #f58733 100%);
             min-height: 100vh;
             display: flex;
@@ -33,7 +32,6 @@
             background-color: white;
         }
 
-        /* Left panel con imagen de fondo y degradado semitransparente */
         .login-panel.left-panel {
             flex: 1;
             position: relative;
@@ -45,7 +43,6 @@
             overflow: hidden;
         }
 
-        /* Capa de degradado semitransparente sobre la imagen */
         .login-panel.left-panel::before {
             content: "";
             position: absolute;
@@ -57,7 +54,6 @@
             z-index: 1;
         }
 
-        /* Aseguramos que el contenido esté por encima del degradado */
         .login-panel.left-panel .logo,
         .login-panel.left-panel .welcome-text {
             position: relative;
@@ -91,18 +87,26 @@
             line-height: 1.6;
         }
 
-        /* Right panel */
         .login-panel.right-panel {
             flex: 1;
             padding: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .login-form-wrapper {
             width: 100%;
             max-width: 320px;
+            /* Aseguramos la opacidad inicial */
+            opacity: 1;
+        }
+
+        .login-form-wrapper.password-recovery {
+            /* Aseguramos la opacidad inicial */
+            opacity: 1;
+            display: none; /* sigue oculto al inicio */
         }
 
         .login-form-wrapper h2 {
@@ -163,10 +167,38 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 10px;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-login.modern:hover {
             background-color: #f58733;
+        }
+
+        .btn-login.modern .loading-spinner {
+            display: none;
+            margin-left: 8px;
+        }
+
+        .btn-login.modern.loading .btn-text {
+            opacity: 0.8;
+        }
+
+        .btn-login.modern.loading .loading-spinner {
+            display: inline-block;
+        }
+
+        .btn-login.modern.loading {
+            background-image: linear-gradient(-45deg, #6cba9d 0%, #3c4262 50%, #f58733 100%);
+            background-size: 200% 200%;
+            animation: gradientAnimation 1.5s ease infinite;
+            cursor: wait;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .additional-options {
@@ -174,16 +206,16 @@
             text-align: center;
         }
 
-        .forgot-password {
+        .forgot-password,
+        .back-to-login {
             color: #6b7280;
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
-        .forgot-password:hover {
-            color: #f58733;
-        }
+        .forgot-password:hover { color: #f58733; }
+        .back-to-login:hover { color: #6cba9d; }
 
         .error-message {
             color: #ef4444;
@@ -195,120 +227,73 @@
             display: none;
         }
 
-        .error-message:not(:empty) {
-            display: block;
+        .message-box {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: none;
         }
 
-        /* Responsive design - Tablets */
+        .message-box.success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .message-box.error {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* Responsive */
         @media screen and (max-width: 1024px) {
-            .login-container.modern {
-                width: 90%;
-                height: auto;
-            }
-            
-            .welcome-text h1 {
-                font-size: 2.5rem;
-            }
+            .login-container.modern { width: 90%; height: auto; }
+            .welcome-text h1 { font-size: 2.5rem; }
         }
-
-        /* Responsive design - Mobile devices */
         @media screen and (max-width: 768px) {
-            .login-container.modern {
-                flex-direction: column;
-                height: auto;
-                margin: 20px 0;
-            }
-            
-            .login-panel.left-panel {
-                padding: 30px;
-                min-height: 200px;
-                justify-content: center;
-                text-align: center;
-            }
-            
-            .logo {
-                margin-bottom: 20px;
-            }
-            
-            .welcome-text {
-                margin-top: 20px;
-            }
-            
-            .welcome-text h1 {
-                font-size: 2rem;
-                margin-bottom: 10px;
-            }
-            
-            .welcome-text p {
-                max-width: 100%;
-                font-size: 0.9rem;
-            }
-            
-            .login-panel.right-panel {
-                padding: 30px 20px;
-            }
-            
-            .login-form-wrapper {
-                max-width: 100%;
-            }
+            .login-container.modern { flex-direction: column; height: auto; margin: 20px 0; }
+            .login-panel.left-panel { padding: 30px; min-height: 200px; justify-content: center; text-align: center; }
+            .logo { margin-bottom: 20px; }
+            .welcome-text { margin-top: 20px; }
+            .welcome-text h1 { font-size: 2rem; margin-bottom: 10px; }
+            .welcome-text p { display: none; } /* Ocultamos el párrafo en móviles */
+            .login-form-wrapper { max-width: 100%; }
         }
-
-        /* For very small screens */
         @media screen and (max-width: 480px) {
-            .login-container.modern {
-                width: 95%;
-            }
-            
-            .welcome-text h1 {
-                font-size: 1.8rem;
-            }
-            
-            .login-panel.left-panel {
-                padding: 20px;
-                min-height: 150px;
-            }
-            
-            .logo img {
-                max-width: 120px;
-            }
-            
-            .login-form-wrapper h2 {
-                font-size: 1.5rem;
-                margin-bottom: 20px;
-            }
+            .login-container.modern { width: 95%; }
+            .welcome-text h1 { font-size: 1.8rem; }
+            .login-panel.left-panel { padding: 20px; min-height: 150px; }
+            .logo img { max-width: 120px; }
+            .login-form-wrapper h2 { font-size: 1.5rem; margin-bottom: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="login-container modern">
-        <!-- Left panel with gradient background -->
         <div class="login-panel left-panel">
             <div class="logo">
-                <!-- Corregida la ruta de la imagen según el formato del header -->
                 <img src="/grupokossodo_ssh/static/assets/images/grupokossodo_blanco.png" alt="Grupo Kossodo" 
                      onerror="this.src='/grupokossodo_ssh/static/assets/images/grupokossodo_blanco.png';">
             </div>
             <div class="welcome-text">
-                <h1>Hello,<br>welcome!</h1>
-                <p>Accede a la plataforma de administración de Grupo Kossodo</p>
+                <h1>Hola,<br>Bienvenido!</h1>
+                <p>Accede a la plataforma de intranet del Grupo Kossodo</p>
             </div>
         </div>
 
-        <!-- Right panel with login form -->
         <div class="login-panel right-panel">
+            <!-- Login Form -->
             <div class="login-form-wrapper">
                 <h2>Iniciar sesión</h2>
                 <div id="error-message" class="error-message"></div>
-                
                 <form id="login-form">
                     <div class="form-group modern">
                         <label for="usuario">Email o usuario</label>
                         <div class="input-with-icon">
                             <i class="fas fa-user"></i>
-                            <input type="text" id="usuario" name="usuario" placeholder="nombre@empresa.com" required>
+                            <input type="text" id="usuario" name="usuario" placeholder="nombre o nombre@grupo.com" required>
                         </div>
                     </div>
-                    
                     <div class="form-group modern">
                         <label for="pass">Contraseña</label>
                         <div class="input-with-icon">
@@ -316,18 +301,188 @@
                             <input type="password" id="pass" name="pass" placeholder="••••••••••••" required>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="btn-login modern">Ingresar</button>
+                    <button type="submit" class="btn-login modern">
+                        <span class="btn-text">Ingresar</span>
+                        <span class="loading-spinner">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </span>
+                    </button>
                 </form>
-                
                 <div class="additional-options">
                     <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
                 </div>
+            </div>
+
+            <!-- Password Recovery Form -->
+            <div class="login-form-wrapper password-recovery">
+                <h2>Recuperar contraseña</h2>
+                <p class="recovery-instructions">Ingresa tu correo electrónico y te enviaremos tu contraseña.</p>
+                <div id="recovery-message" class="message-box"></div>
+                <form id="recovery-form">
+                    <div class="form-group modern">
+                        <label for="recovery-email">Correo electrónico</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="recovery-email" name="recovery-email" placeholder="tu.correo@grupo.com" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login modern recovery-btn">
+                        <span class="btn-text">Recuperar contraseña</span>
+                        <span class="loading-spinner">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </span>
+                    </button>
+                    <div class="additional-options">
+                        <a href="#" class="back-to-login">Volver al inicio de sesión</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <!-- Mantén el JS externo si lo necesitas -->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+
+    <!-- Script con animación fade para el cambio de formularios -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funciones utilitarias de fade
+        function fadeOut(element, duration = 300) {
+            element.style.opacity = 1;
+            element.style.transition = `opacity ${duration}ms ease`;
+            element.getBoundingClientRect();
+            element.style.opacity = 0;
+            return new Promise(resolve => {
+                element.addEventListener('transitionend', function handler() {
+                    element.removeEventListener('transitionend', handler);
+                    element.style.display = 'none';
+                    resolve();
+                });
+            });
+        }
+
+        function fadeIn(element, duration = 300) {
+            element.style.opacity = 0;
+            element.style.display = 'block';
+            element.style.transition = `opacity ${duration}ms ease`;
+            element.getBoundingClientRect();
+            element.style.opacity = 1;
+            return new Promise(resolve => {
+                element.addEventListener('transitionend', function handler() {
+                    element.removeEventListener('transitionend', handler);
+                    resolve();
+                });
+            });
+        }
+
+        // Selectores
+        const loginFormWrapper    = document.querySelector('.login-form-wrapper:not(.password-recovery)');
+        const recoveryFormWrapper = document.querySelector('.login-form-wrapper.password-recovery');
+        const forgotPasswordLink  = document.querySelector('.forgot-password');
+        const backToLoginLink     = document.querySelector('.back-to-login');
+        const recoveryForm        = document.getElementById('recovery-form');
+        const recoveryMessageBox  = document.getElementById('recovery-message');
+
+        // Mostrar recovery con fade
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fadeOut(loginFormWrapper).then(() => {
+                fadeIn(recoveryFormWrapper);
+            });
+        });
+
+        // Volver a login con fade
+        backToLoginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fadeOut(recoveryFormWrapper).then(() => {
+                recoveryMessageBox.style.display = 'none';
+                recoveryForm.reset();
+                fadeIn(loginFormWrapper);
+            });
+        });
+
+        // Resto de la lógica de envío de formularios...
+        const loginForm    = document.getElementById('login-form');
+        const loginButton  = document.querySelector('.btn-login.modern:not(.recovery-btn)');
+        const buttonText   = loginButton.querySelector('.btn-text');
+        const errorMessage = document.getElementById('error-message');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            loginButton.classList.add('loading');
+            buttonText.textContent = 'Iniciando sesión...';
+            const formData = {
+                usuario: document.getElementById('usuario').value,
+                pass:    document.getElementById('pass').value
+            };
+            fetch('/grupokossodo_ssh/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            })
+            .then(resp => {
+                const ct = resp.headers.get('content-type')||'';
+                if (ct.includes('application/json')) return resp.json();
+                throw new Error('No es JSON válido');
+            })
+            .then(data => {
+                if (data.success) {
+                    errorMessage.textContent = '¡Inicio de sesión exitoso!';
+                    errorMessage.style.backgroundColor = '#d1fae5';
+                    errorMessage.style.color = '#065f46';
+                    errorMessage.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/grupokossodo_ssh/api/welcome';
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = data.message || 'Error al iniciar sesión';
+                    errorMessage.style.backgroundColor = '#fee2e2';
+                    errorMessage.style.color = '#ef4444';
+                    errorMessage.style.display = 'block';
+                    loginButton.classList.remove('loading');
+                    buttonText.textContent = 'Ingresar';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                errorMessage.textContent = 'Error de conexión. Inténtalo de nuevo';
+                errorMessage.style.display = 'block';
+                loginButton.classList.remove('loading');
+                buttonText.textContent = 'Ingresar';
+            });
+        });
+
+        const recoveryButton = document.querySelector('.recovery-btn');
+        recoveryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const rbText = recoveryButton.querySelector('.btn-text');
+            recoveryButton.classList.add('loading');
+            rbText.textContent = 'Enviando...';
+            fetch('/grupokossodo_ssh/api/recover-password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: document.getElementById('recovery-email').value })
+            })
+            .then(r => r.json())
+            .then(data => {
+                recoveryMessageBox.textContent = data.message || (data.success
+                    ? 'Se han enviado las credenciales a tu correo electrónico.'
+                    : 'Error al procesar la solicitud.');
+                recoveryMessageBox.className = `message-box ${data.success ? 'success' : 'error'}`;
+                recoveryMessageBox.style.display = 'block';
+                recoveryButton.classList.remove('loading');
+                rbText.textContent = 'Recuperar contraseña';
+            })
+            .catch(err => {
+                console.error(err);
+                recoveryMessageBox.textContent = 'Error de conexión. Inténtalo de nuevo.';
+                recoveryMessageBox.className = 'message-box error';
+                recoveryMessageBox.style.display = 'block';
+                recoveryButton.classList.remove('loading');
+                rbText.textContent = 'Recuperar contraseña';
+            });
+        });
+    });
+    </script>
 </body>
 </html>
