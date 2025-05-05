@@ -425,6 +425,44 @@
         .btn-filtro:hover {
             background-color: #0069d9;
         }
+        .asesor-row {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .asesor-row:hover {
+            background-color: #f5f5f5;
+        }
+
+        .asesor-tooltip {
+            position: absolute;
+            z-index: 100;
+            background-color: rgba(51, 51, 51, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .tooltip-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .tooltip-content div:nth-child(1) { /* Bueno */
+            color: #4CAF50;
+        }
+
+        .tooltip-content div:nth-child(2) { /* Regular */
+            color: #FFC107;
+        }
+
+        .tooltip-content div:nth-child(3) { /* Malo */
+            color: #ffa6a0;
+        }
 
         @media (max-width: 576px) {
             .dashboard-card {
@@ -460,6 +498,89 @@
                 padding: 4px;
             }
         }
+
+
+        /* Agregar en la sección <style> existente */
+        .btn-conformidad {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-conformidad:hover {
+            background-color: #f57c00;
+        }
+
+        .btn-guardar {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-guardar:hover {
+            background-color: #388E3C;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+
+
+        #modalConformidad {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalConformidad .modal-content {
+            position: relative;
+            margin: auto;
+            max-height: 80vh;
+            width: 95%;
+            max-width: 500px;
+        }
+
+        /* Estilo para el indicador de carga */
+        #loadingConformidad {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }        
     </style>
 </head>
 <body>
@@ -635,7 +756,41 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" id="btnCerrarModalDetalles">Cerrar</button>
+                                <button class="btn-conformidad" id="btnConformidad" data-record-id="">Conformidad</button>
+                                <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nuevo modal para conformidad -->
+                    <div id="modalConformidad" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Conformidad de resolución del cliente</h3>
+                                <span class="close-button" onclick="cerrarModalConformidad()">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formConformidad">
+                                    <input type="hidden" id="conformidadRecordId">
+                                    
+                                    <div class="form-group">
+                                        <label for="tipoConformidad">Estado de conformidad:</label>
+                                        <select id="tipoConformidad" class="form-control" required>
+                                            <option value="">Seleccione una opción</option>
+                                            <option value="Sustentable">Sustentable</option>
+                                            <option value="Rechazado">Rechazado</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="observacionConformidad">Observación:</label>
+                                        <textarea id="observacionConformidad" class="form-control" rows="4"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-guardar" onclick="guardarConformidad()">Enviar</button>
+                                <button class="btn-cerrar" onclick="cerrarModalConformidad()">Cancelar</button>
                             </div>
                         </div>
                     </div>
@@ -666,6 +821,11 @@
         let chartLineas = null;
         let chartRegiones = null;
 
+        // Variables para el modal de conformidad
+        let modalConformidad = document.getElementById('modalConformidad');
+        let btnConformidad = document.getElementById('btnConformidad');
+        let conformidadRecordId = document.getElementById('conformidadRecordId');
+
         // Función para formatear fecha
         function formatearFecha(fecha) {
             if (!fecha) return '-';
@@ -680,8 +840,6 @@
 
         // Función para mostrar el modal con detalles
         function mostrarDetalles(registro) {
-            console.log("Modal trigger clicked for registro:", registro); // Debug log
-            
             try {
                 // Check if registro exists
                 if (!registro) {
@@ -689,7 +847,10 @@
                     return;
                 }
                 
+                // Mostrar ID en el título del modal
                 document.getElementById('modalIdCalificacion').textContent = registro.idcalificacion || 'N/A';
+                
+                // Llenar la información básica
                 document.getElementById('detallesRuc').textContent = registro.ruc || 'No disponible';
                 document.getElementById('detallesDocumento').textContent = registro.documento || 'No disponible';
                 document.getElementById('detallesFecha').textContent = formatearFecha(registro.timestamp);
@@ -720,10 +881,18 @@
                         promocionesHtml.join('') : 
                         '<div class="no-promociones">No hay promociones registradas</div>';
 
-                // Force the modal to be visible
-                const modalElement = document.getElementById('modalDetalles');
-                modalElement.style.display = 'flex';
-                console.log("Modal should now be visible");
+                // Configurar el botón de conformidad
+                const btnConformidad = document.getElementById('btnConformidad');
+                if (btnConformidad) {
+                    btnConformidad.setAttribute('data-record-id', registro.idcalificacion);
+                    btnConformidad.onclick = function() {
+                        abrirModalConformidad(registro.idcalificacion);
+                    };
+                }
+
+                // Mostrar el modal
+                document.getElementById('modalDetalles').style.display = 'flex';
+                
             } catch (error) {
                 console.error("Error al mostrar detalles:", error);
             }
@@ -734,14 +903,16 @@
         }
 
         document.getElementById('closeModalDetalles').addEventListener('click', cerrarModalDetalles);
-        document.getElementById('btnCerrarModalDetalles').addEventListener('click', cerrarModalDetalles);
 
         // Función para calcular estadísticas y crear visualizaciones
         function generarEstadisticas(data) {
             const todosRegistros = data;
             
-            // 1. Estadísticas para Ventas (OT)
-            const ventasRegistros = todosRegistros.filter(r => r.tipo === 'Ventas (OT)');
+            // MODIFICAR ESTA LÍNEA: Incluir también Ventas (OC)
+            const ventasRegistros = todosRegistros.filter(r => 
+                r.tipo === 'Ventas (OT)' || r.tipo === 'Ventas (OC)'
+            );
+            
             const ventasStats = {
                 bueno: ventasRegistros.filter(r => r.calificacion === 'Bueno').length,
                 regular: ventasRegistros.filter(r => r.calificacion === 'Regular').length,
@@ -764,9 +935,9 @@
             const asesoresStats = {};
             // Asegurarse de que solo procesamos registros de Ventas (OT)
             ventasRegistros.forEach(registro => {
-                // Verificar explícitamente que sea de tipo Ventas (OT)
-                if (registro.tipo !== 'Ventas (OT)') return;
-                
+                // Verificar explícitamente que sea de tipo Ventas (OT) o Ventas (OC)
+                // if (registro.tipo !== 'Ventas (OT)') return;
+
                 const asesor = registro.asesor || 'Sin asesor';
                 if (!asesoresStats[asesor]) {
                     asesoresStats[asesor] = {
@@ -908,31 +1079,66 @@
                         <tr>
                             <th>Asesor</th>
                             <th>Total</th>
-                            <th>Bueno</th>
-                            <th>Regular</th>
-                            <th>Malo</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
-            
-            Object.entries(asesoresStats).forEach(([asesor, stats]) => {
+
+            // Convertir a array, ordenar por total (descendente) y limitar a 5
+            const asesoresArray = Object.entries(asesoresStats)
+                .map(([nombre, stats]) => ({nombre, ...stats}))
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 5);
+
+            asesoresArray.forEach(asesor => {
                 tablaHtml += `
-                    <tr>
-                        <td>${asesor}</td>
-                        <td>${stats.total}</td>
-                        <td>${stats.bueno}</td>
-                        <td>${stats.regular}</td>
-                        <td>${stats.malo}</td>
+                    <tr class="asesor-row" 
+                        data-bueno="${asesor.bueno}" 
+                        data-regular="${asesor.regular}" 
+                        data-malo="${asesor.malo}">
+                        <td>${asesor.nombre}</td>
+                        <td>${asesor.total}</td>
                     </tr>
                 `;
             });
-            
+
             tablaHtml += `
                     </tbody>
                 </table>
+                <div id="asesorTooltip" class="asesor-tooltip" style="display: none;"></div>
             `;
             tablaAsesores.innerHTML = tablaHtml;
+
+            // Agregar manejadores de eventos para el tooltip
+            const tooltip = document.getElementById('asesorTooltip');
+            document.querySelectorAll('.asesor-row').forEach(row => {
+                row.addEventListener('mouseover', function(e) {
+                    const bueno = this.getAttribute('data-bueno');
+                    const regular = this.getAttribute('data-regular');
+                    const malo = this.getAttribute('data-malo');
+                    
+                    tooltip.innerHTML = `
+                        <div class="tooltip-content">
+                            <div>Bueno: ${bueno}</div>
+                            <div>Regular: ${regular}</div>
+                            <div>Malo: ${malo}</div>
+                        </div>
+                    `;
+                    
+                    // Posicionar el tooltip
+                    const rowRect = this.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    
+                    tooltip.style.left = (rowRect.right + 10) + 'px';
+                    tooltip.style.top = (rowRect.top + scrollTop - tooltipRect.height/2 + rowRect.height/2) + 'px';
+                    tooltip.style.display = 'block';
+                });
+                
+                row.addEventListener('mouseout', function() {
+                    tooltip.style.display = 'none';
+                });
+            });
             
             // 4. Ranking de asesores
             const rankingAsesores = document.getElementById('rankingAsesores');
@@ -940,34 +1146,63 @@
                 <table class="stat-table">
                     <thead>
                         <tr>
-                            <th>Ranking</th>
+                            <th>Rank</th>
                             <th>Asesor</th>
-                            <th>Total</th>
-                            <th>Bueno</th>
                             <th>%</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
-            
-            asesoresRanking.forEach((asesor, index) => {
+
+            // Limitar el ranking a los 5 primeros
+            const top5Ranking = asesoresRanking.slice(0, 5);
+
+            top5Ranking.forEach((asesor, index) => {
                 const esMejor = index === 0 ? 'best-performer' : '';
                 rankingHtml += `
-                    <tr class="${esMejor}">
+                    <tr class="${esMejor} ranking-row" 
+                        data-total="${asesor.total}" 
+                        data-bueno="${asesor.bueno}">
                         <td>${index + 1}</td>
                         <td>${asesor.nombre}</td>
-                        <td>${asesor.total}</td>
-                        <td>${asesor.bueno}</td>
                         <td>${asesor.porcentaje}%</td>
                     </tr>
                 `;
             });
-            
+
             rankingHtml += `
                     </tbody>
                 </table>
+                <div id="rankingTooltip" class="asesor-tooltip" style="display: none;"></div>
             `;
             rankingAsesores.innerHTML = rankingHtml;
+            // Agregar manejadores de eventos para el tooltip del ranking
+            const rankingTooltip = document.getElementById('rankingTooltip');
+            document.querySelectorAll('.ranking-row').forEach(row => {
+                row.addEventListener('mouseover', function(e) {
+                    const total = this.getAttribute('data-total');
+                    const bueno = this.getAttribute('data-bueno');
+                    
+                    rankingTooltip.innerHTML = `
+                        <div class="tooltip-content">
+                            <div>Total: ${total} / Bueno: ${bueno}</div>
+                        </div>
+                    `;
+                    
+                    // Posicionar el tooltip
+                    const rowRect = this.getBoundingClientRect();
+                    const tooltipRect = rankingTooltip.getBoundingClientRect();
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    
+                    rankingTooltip.style.left = (rowRect.right + 10) + 'px';
+                    rankingTooltip.style.top = (rowRect.top + scrollTop - tooltipRect.height/2 + rowRect.height/2) + 'px';
+                    rankingTooltip.style.display = 'block';
+                });
+                
+                row.addEventListener('mouseout', function() {
+                    rankingTooltip.style.display = 'none';
+                });
+            });
         }
 
         // Nuevas funciones para los filtros
@@ -1402,11 +1637,12 @@
                                 font: {
                                     size: window.innerWidth < 576 ? 8 : 10
                                 }
-                            }
+                             }     
+                             }
                         }
                     }
-                }
-            });
+                });
+                
         }
         
         // Para chartRegiones
@@ -1477,25 +1713,25 @@
                             }
                         }
                     },
-                    scales: {
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: window.innerWidth < 576 ? 8 : 10
-                                },
-                                maxRotation: window.innerWidth < 576 ? 90 : 0
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                font: {
-                                    size: window.innerWidth < 576 ? 8 : 10
+                        scales: {
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 576 ? 8 : 10
+                                    },
+                                    maxRotation: window.innerWidth < 576 ? 90 : 0
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 576 ? 8 : 10
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
         }
         
 
@@ -1607,6 +1843,130 @@
         window.addEventListener('load', cargarCalificaciones);
 
         window.addEventListener('resize', ajustarTamañoGraficosCirculares);
+
+        // Inicializar variables para el modal de conformidad cuando realmente se necesiten
+        function iniciarModalConformidad() {
+            // Solo referenciamos los elementos cuando ya sabemos que existen
+            const modalConformidad = document.getElementById('modalConformidad');
+            const conformidadRecordId = document.getElementById('conformidadRecordId');
+            
+            return { modalConformidad, conformidadRecordId };
+        }
+
+        // Función para abrir el modal de conformidad
+        function abrirModalConformidad(recordId) {
+            const { modalConformidad, conformidadRecordId } = iniciarModalConformidad();
+            
+            // 1. Primero mostrar el modal inmediatamente
+            if (modalConformidad) {
+                modalConformidad.style.display = 'block';
+                // Centrar el modal en la pantalla
+                modalConformidad.style.display = 'flex';
+            }
+            
+            // 2. Guardar el ID
+            if (conformidadRecordId) {
+                conformidadRecordId.value = recordId;
+            }
+            
+            // 3. Mostrar indicador de carga
+            document.getElementById('tipoConformidad').disabled = true;
+            document.getElementById('observacionConformidad').disabled = true;
+            
+            const formBody = document.querySelector('#formConformidad');
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.id = 'loadingConformidad';
+            loadingIndicator.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</div>';
+            formBody.prepend(loadingIndicator);
+            
+            // 4. Hacer la solicitud en segundo plano
+            fetch(AppConfig.getFullPath(`${API_BASE_URL}/record-conformidad/${recordId}`))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remover el indicador de carga
+                    document.getElementById('loadingConformidad').remove();
+                    
+                    // Habilitar campos
+                    document.getElementById('tipoConformidad').disabled = false;
+                    document.getElementById('observacionConformidad').disabled = false;
+                    
+                    if (data.status === 'success' && data.record) {
+                        document.getElementById('tipoConformidad').value = data.record.conformidad || '';
+                        document.getElementById('observacionConformidad').value = data.record.conformidad_obs || '';
+                    } else {
+                        document.getElementById('tipoConformidad').value = '';
+                        document.getElementById('observacionConformidad').value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar datos de conformidad:', error);
+                    document.getElementById('loadingConformidad').innerHTML = 
+                        '<div class="text-danger">Error al cargar datos. Puede continuar ingresando la información.</div>';
+                    
+                    // Habilitar campos a pesar del error
+                    document.getElementById('tipoConformidad').disabled = false;
+                    document.getElementById('observacionConformidad').disabled = false;
+                });
+        }        // Función para cerrar el modal de conformidad
+        function cerrarModalConformidad() {
+            const { modalConformidad } = iniciarModalConformidad();
+            if (modalConformidad) {
+                modalConformidad.style.display = 'none';
+            }
+        }
+
+        // Función para guardar la conformidad
+        function guardarConformidad() {
+            const recordId = conformidadRecordId.value;
+            const tipoConformidad = document.getElementById('tipoConformidad').value;
+            const observacion = document.getElementById('observacionConformidad').value;
+            
+            // Validación básica
+            if (!tipoConformidad) {
+                alert('Por favor seleccione un tipo de conformidad');
+                return;
+            }
+            
+            // Preparar los datos para enviar
+            const datos = {
+                conformidad: tipoConformidad,
+                conformidad_obs: observacion
+            };
+            
+            // Usar la URL correcta con AppConfig
+            fetch(AppConfig.getFullPath(`${API_BASE_URL}/record-conformidad/${recordId}`), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Conformidad guardada correctamente');
+                    cerrarModalConformidad();
+                    // Actualizar la vista si es necesario
+                    cargarCalificaciones();
+                } else {
+                    alert('Error al guardar la conformidad: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error al guardar conformidad:', error);
+                alert('Error al guardar la conformidad: ' + error.message);
+            });
+        }
     </script>
 </body>
 </html>
