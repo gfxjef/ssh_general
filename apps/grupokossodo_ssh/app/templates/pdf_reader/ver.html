@@ -304,6 +304,122 @@
             }
         }
 
+        /* Report Modal Styles (using existing styles as much as possible) */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--color-gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-gray-800);
+}
+
+.close-button {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-gray-600);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: var(--color-gray-900);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--color-gray-200);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--color-gray-700);
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.btn-guardar {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-guardar:hover {
+    background-color: #2970c3;
+}
+
+.btn-cerrar {
+    background-color: var(--color-gray-500);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-cerrar:hover {
+    background-color: var(--color-gray-600);
+}
     </style>
 </head>
 <body>
@@ -368,6 +484,7 @@
     <script src="{{ url_for('static', filename='js/loadHeader.js') }}"></script>
     <script src="{{ url_for('static', filename='js/loadSidebar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/logoutHandler.js') }}"></script>
+    <script src="{{ url_for('pdf_reader.static', filename='js/report-modal.js') }}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
@@ -622,13 +739,7 @@ function shareCatalog(catalogName) {
     }
 }
 
-function deletePDF(catalogName) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el PDF "${catalogName}"?`)) {
-        // Aquí iría la lógica para eliminar el PDF
-        alert(`Función para eliminar el PDF "${catalogName}" (por implementar)`);
-        // Una implementación real haría una solicitud al servidor para eliminar el archivo
-    }
-}
+
 
 function updatePDF(catalogName) {
     // Aquí iría la lógica para actualizar el PDF
@@ -636,11 +747,7 @@ function updatePDF(catalogName) {
     // Una implementación real podría abrir un modal para cargar una nueva versión
 }
 
-function reportPDF(catalogName) {
-    // Aquí iría la lógica para reportar problemas con el PDF
-    alert(`Función para reportar problemas con el PDF "${catalogName}" (por implementar)`);
-    // Una implementación real podría abrir un formulario para reportar problemas
-}
+
 
 function shareGeneralCatalog() {
     // URL del visualizador general de catálogos
@@ -714,6 +821,94 @@ function shareGeneralCatalog() {
         }
     }
 }
-</script>
+
+function deletePDF(catalogName) {
+    // Mostrar confirmación con el nombre del catálogo formateado para mejor legibilidad
+    const catalogDisplayName = catalogName.replace(/_/g, ' ').replace(/.pdf$/, '');
+    
+    if (confirm(`¿Estás seguro de que deseas eliminar el catálogo "${catalogDisplayName}"?\n\nEsta acción no se puede revertir.`)) {
+        // Mostrar indicador de carga
+        const button = event.currentTarget;
+        const buttonSpan = button.querySelector('span');
+        const originalText = buttonSpan.textContent;
+        
+        // Cambiar texto del botón durante la eliminación
+        buttonSpan.textContent = "Eliminando...";
+        button.disabled = true;
+        
+        // Obtener la URL base para las solicitudes
+        const baseUrl = window.location.pathname.includes('/grupokossodo_ssh') ? 
+                    '/grupokossodo_ssh/pdf_reader' : '/pdf_reader';
+        
+        // Realizar la solicitud al servidor
+        fetch(`${baseUrl}/delete-pdf`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ pdf_name: catalogName })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // PDF eliminado correctamente
+                alert(`El catálogo "${catalogDisplayName}" ha sido eliminado correctamente.`);
+                
+                // Recargar la lista de catálogos
+                location.reload();
+            } else {
+                // Error al eliminar
+                throw new Error(data.error || 'Error desconocido');
+            }
+        })
+        .catch(error => {
+            console.error('Error al eliminar PDF:', error);
+            alert(`Error al eliminar el catálogo: ${error.message}`);
+            
+            // Restaurar el botón
+            buttonSpan.textContent = originalText;
+            button.disabled = false;
+        });
+    }
+}
+    </script>
+
+    <!-- Modal para reportar problemas con PDF -->
+<div id="reportModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Reportar problema con PDF: <span id="reportPdfName"></span></h3>
+            <span class="close-button" id="closeReportModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="reportForm">
+                <div class="form-group">
+                    <label for="errorType">Tipo de Error</label>
+                    <select id="errorType" class="form-control" required>
+                        <option value="">Seleccione un tipo de error</option>
+                        <option value="descripcion">Descripción incorrecta/errónea</option>
+                        <option value="imagen">Error de Imagen</option>
+                        <option value="enlace">Enlace roto o Inválido</option>
+                        <option value="ortografia">Ortografía/Gramática</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="errorDescription">Describe el error</label>
+                    <textarea id="errorDescription" class="form-control" rows="5" required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-guardar" id="submitReport">ENVIAR</button>
+            <button class="btn-cerrar" id="cancelReport">CANCELAR</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

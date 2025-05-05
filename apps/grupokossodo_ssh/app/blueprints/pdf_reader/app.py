@@ -6,6 +6,10 @@ from flask import request, jsonify, send_from_directory, redirect, url_for, curr
 from werkzeug.utils import secure_filename
 from . import pdf_reader_bp
 from .pdf_processor import PDFProcessor
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
@@ -244,3 +248,170 @@ def progreso_pdf():
 def ver_catalogos():
     """Página para visualizar el listado completo de catálogos"""
     return render_template('pdf_reader/ver.html')
+
+@pdf_reader_bp.route('/report-pdf', methods=['POST'])
+def report_pdf():
+    """Endpoint para recibir reportes de problemas con PDFs y enviar correo de notificación"""
+    try:
+        # Obtener los datos del reporte
+        report_data = request.json
+        if not report_data:
+            return jsonify({'success': False, 'error': 'No se recibieron datos'}), 400
+            
+        required_fields = ['pdf', 'tipo', 'descripcion']
+        for field in required_fields:
+            if field not in report_data:
+                return jsonify({'success': False, 'error': f'Falta el campo {field}'}), 400
+
+        # Preparar datos de usuario (enviados desde el frontend o valores por defecto)
+        user_data = {
+            'nombre': report_data.get('usuario', 'Usuario desconocido'),
+            'cargo': report_data.get('cargo', 'Cargo desconocido')
+        }
+
+        # Enviar correo de notificación
+        send_report_email(report_data, user_data)
+        
+        return jsonify({'success': True, 'message': 'Reporte enviado correctamente'})
+        
+    except Exception as e:
+        logger.error(f"Error al procesar reporte de PDF: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+def send_report_email(report_data, user_data):
+    """Envía un correo electrónico con el reporte del problema del PDF"""
+    try:
+        # Configurar correo
+        email_user = os.environ.get('EMAIL_USER', 'jcamacho@kossodo.com')
+        email_password = os.environ.get('EMAIL_PASSWORD', 'kfmklqrzzrengbhk')
+        recipients = ['jcamacho@kossodo.com', 'eventos@kossodo.com', 'rbazan@kossodo.com', 'creatividad@kossodo.com']
+        
+        # Fecha actual formateada
+        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        
+        # Crear mensaje
+        msg = MIMEMultipart()
+        msg['From'] = email_user
+        msg['To'] = ', '.join(recipients)
+        msg['Subject'] = f"Reporte de problema con PDF: {report_data['pdf']}"
+        
+        # Mapear tipos de errores a nombres más descriptivos
+        error_types = {
+            'descripcion': 'Descripción incorrecta/errónea',
+            'imagen': 'Error de Imagen',
+            'enlace': 'Enlace roto o Inválido',
+            'ortografia': 'Ortografía/Gramática',
+            'otro': 'Otro'
+        }
+        
+        error_type_display = error_types.get(report_data['tipo'], report_data['tipo'])
+        
+        # Contenido del correo
+        html = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background-color: #3c4262; color: white; padding: 10px 20px; }}
+                .content {{ padding: 20px; }}
+                .info {{ background-color: #f5f5f5; padding: 15px; margin: 20px 0; border-left: 4px solid #6cba9d; }}
+                .footer {{ font-size: 12px; color: #777; margin-top: 30px; }}
+                .timestamp {{ font-style: italic; color: #666; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Reporte de problema con Catálogo PDF</h2>
+                </div>
+                <div class="content">
+                    <p class="timestamp">Fecha: {now}</p>
+                    <p>Se ha reportado un problema con un PDF del catálogo.</p>
+                    
+                    <div class="info">
+                        <p><strong>PDF:</strong> {report_data['pdf']}</p>
+                        <p><strong>Tipo de error:</strong> {error_type_display}</p>
+                        <p><strong>Descripción del error:</strong> {report_data['descripcion']}</p>
+                    </div>
+                    
+                    <div class="info">
+                        <p><strong>Reportado por:</strong> {user_data.get('nombre', 'Desconocido')}</p>
+                        <p><strong>Cargo:</strong> {user_data.get('cargo', 'Desconocido')}</p>
+                    </div>
+                    
+                    <p>Por favor, revisar y tomar las acciones correspondientes.</p>
+                </div>
+                <div class="footer">
+                    <p>Este es un mensaje automático del Sistema de Catálogos de Grupo Kossodo.</p>
+                    <p>&copy; 2025 Grupo Kossodo. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(html, 'html'))
+        
+        # Conectar al servidor y enviar
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(email_user, email_password)
+        server.send_message(msg)
+        server.quit()
+        
+        logger.info(f"Correo de reporte enviado correctamente a {', '.join(recipients)}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error al enviar correo de reporte: {str(e)}")
+        raise e
+
+@pdf_reader_bp.route('/delete-pdf', methods=['POST'])
+def delete_pdf():
+    """Endpoint para eliminar un PDF procesado y todos sus archivos asociados"""
+    try:
+        # Obtener el nombre del PDF del cuerpo de la solicitud
+        data = request.json
+        if not data or 'pdf_name' not in data:
+            return jsonify({'success': False, 'error': 'No se especificó el nombre del PDF'}), 400
+            
+        pdf_name = data['pdf_name']
+        
+        # Eliminar la extensión .pdf si está presente
+        if pdf_name.lower().endswith('.pdf'):
+            pdf_name = pdf_name[:-4]
+        
+        # Construir la ruta a la carpeta del PDF
+        # Primero intentar la ubicación en static/pdf
+        pdf_dir = os.path.join(current_app.root_path, 'static', 'pdf', pdf_name)
+        
+        # Si no existe, probar la ubicación alternativa
+        if not os.path.exists(pdf_dir) or not os.path.isdir(pdf_dir):
+            pdf_dir = os.path.join(current_app.root_path, 'templates', 'pdf_reader', 'pdf', pdf_name)
+            
+        # Verificar que la carpeta existe
+        if not os.path.exists(pdf_dir) or not os.path.isdir(pdf_dir):
+            # Intentar una última ubicación: directamente en pdf_reader/pdf
+            pdf_dir = os.path.join(current_app.root_path, 'blueprints', 'pdf_reader', 'pdf', pdf_name)
+            if not os.path.exists(pdf_dir) or not os.path.isdir(pdf_dir):
+                return jsonify({
+                    'success': False, 
+                    'error': f'El catálogo "{pdf_name}" no existe o ya fue eliminado'
+                }), 404
+        
+        # Registrar la ubicación encontrada
+        print(f"Eliminando catálogo en: {pdf_dir}")
+        
+        # Eliminar la carpeta completa y todo su contenido
+        shutil.rmtree(pdf_dir)
+        
+        # Devolver respuesta exitosa
+        return jsonify({
+            'success': True, 
+            'message': f'Catálogo "{pdf_name}" eliminado correctamente'
+        })
+        
+    except Exception as e:
+        print(f"Error al eliminar PDF: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
